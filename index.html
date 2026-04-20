@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.3</title>
+    <title>Match Pro v7.9.4</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -11,30 +11,29 @@
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
         
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; }
         .setup-bar { display: flex; gap: 15px; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 25px; align-items: flex-end; border: 1px solid var(--border); }
         .input-group label { display: block; font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
         input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); }
+        input:focus { border-color: var(--accent); background: #1e293b; }
 
-        .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .card-header { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .card-body { max-height: 0; padding: 0 15px; transition: all 0.3s ease; opacity: 0; overflow: hidden; }
-        .team-card.open .card-body { max-height: 300px; padding: 15px; opacity: 1; border-top: 1px solid var(--border); }
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Team Entry Blocks (Always Visible) */
+        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); padding: 15px; }
+        .team-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .team-num { background: var(--accent); color: var(--bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; }
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
         button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
         .btn-init { background: var(--accent); color: var(--bg); padding: 10px 20px; }
-        .btn-draw { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 20px; }
+        .btn-draw { background: var(--success); color: white; padding: 18px; width: 100%; font-size: 1.2rem; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); max-width: 950px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 100; }
         .btn-print { background: #f59e0b; color: white; padding: 12px 24px; margin-bottom: 20px; }
 
+        /* Result Colors */
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; }
-        .res-block h3 { margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        
+        td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .row-red { background-color: var(--row-red) !important; }
         .row-yellow { background-color: var(--row-yellow) !important; }
         .row-green { background-color: var(--row-green) !important; }
@@ -52,8 +51,7 @@
 
 <div class="container">
     <header class="no-print">
-        <div><h1>MATCH PRO</h1><small style="color: var(--accent)">v7.9.3 | Stable Release</small></div>
-        <div id="status">Ready</div>
+        <h1>MATCH PRO <small style="font-size: 0.8rem; color: var(--accent);">v7.9.4</small></h1>
     </header>
 
     <div class="no-print">
@@ -63,7 +61,10 @@
             <div class="input-group"><label>Individuals</label><input type="number" id="numIndivs" value="2"></div>
             <button class="btn-init" onclick="initGrid()">Initialize Grid</button>
         </div>
-        <div id="entryContainer"></div>
+
+        <div id="entryContainer">
+            </div>
+        
         <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Competition Draw</button>
     </div>
 
@@ -71,81 +72,60 @@
 </div>
 
 <script>
-    const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Bronze'];
+    const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
 
     function initGrid() {
-        // Get values and force them to be numbers
-        const nZones = parseInt(document.getElementById('numZones').value) || 0;
         const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
         const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
-        const status = document.getElementById('status');
-        
-        if (nZones < 1) {
-            status.innerText = "Error: Set Zones";
-            status.style.color = "red";
-            return;
-        }
-
         const container = document.getElementById('entryContainer');
-        container.innerHTML = ''; // Clear previous grid
+        container.innerHTML = ''; 
 
-        // Build Team Cards
+        // Create Team Blocks
         for (let i = 1; i <= nTeams; i++) {
-            const card = document.createElement('div');
-            card.className = 'team-card';
-            card.innerHTML = `
-                <div class="card-header" onclick="toggleCard(this)">
-                    <div style="background:var(--accent);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:bold;">${i}</div>
-                    <input type="text" class="main-input t-name" placeholder="Enter Team Name..." onclick="event.stopPropagation()">
+            const div = document.createElement('div');
+            div.className = 'team-block';
+            div.innerHTML = `
+                <div class="team-header">
+                    <span class="team-num">${i}</span>
+                    <input type="text" class="main-input t-name" placeholder="Enter Team Name">
                 </div>
-                <div class="card-body">
-                    <div class="angler-grid">
-                        <input type="text" class="main-input a-name" placeholder="Angler 1">
-                        <input type="text" class="main-input a-name" placeholder="Angler 2">
-                        <input type="text" class="main-input a-name" placeholder="Angler 3">
-                        <input type="text" class="main-input a-name" placeholder="Angler 4">
-                    </div>
-                </div>`;
-            container.appendChild(card);
+                <div class="angler-grid">
+                    <input type="text" class="main-input a-name" placeholder="Angler 1">
+                    <input type="text" class="main-input a-name" placeholder="Angler 2">
+                    <input type="text" class="main-input a-name" placeholder="Angler 3">
+                    <input type="text" class="main-input a-name" placeholder="Angler 4">
+                </div>
+            `;
+            container.appendChild(div);
         }
 
-        // Build Individual Block
+        // Create Individual Block
         if(nIndivs > 0) {
-            const iCard = document.createElement('div');
-            iCard.className = 'team-card open';
-            iCard.innerHTML = `
-                <div class="card-header"><strong>Individual Entries</strong></div>
-                <div class="card-body">
-                    <div class="angler-grid" id="indivGrid"></div>
-                </div>`;
-            container.appendChild(iCard);
-            const grid = iCard.querySelector('#indivGrid');
+            const iDiv = document.createElement('div');
+            iDiv.className = 'team-block';
+            iDiv.innerHTML = `
+                <div class="team-header"><strong>Individual Anglers</strong></div>
+                <div class="angler-grid" id="indivGrid"></div>
+            `;
+            container.appendChild(iDiv);
+            const grid = iDiv.querySelector('#indivGrid');
             for(let j=0; j<nIndivs; j++) {
                 grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Angler Name">`;
             }
         }
 
         document.getElementById('drawBtn').style.display = 'block';
-        status.innerText = "Grid Ready";
-        status.style.color = "var(--success)";
-    }
-
-    function toggleCard(header) {
-        const card = header.parentElement;
-        const wasOpen = card.classList.contains('open');
-        document.querySelectorAll('.team-card').forEach(c => c.classList.remove('open'));
-        if (!wasOpen) card.classList.add('open');
     }
 
     function runDraw() {
         const nZones = parseInt(document.getElementById('numZones').value) || 4;
         let teams = {}; let indivs = [];
 
-        document.querySelectorAll('.team-card').forEach(card => {
-            const tIn = card.querySelector('.t-name');
+        document.querySelectorAll('.team-block').forEach(block => {
+            const tIn = block.querySelector('.t-name');
             if (tIn) {
                 const teamName = tIn.value || "Unnamed Team";
-                const names = Array.from(card.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v !== "");
+                const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v !== "");
                 if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName }));
             }
         });
@@ -154,10 +134,10 @@
             if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual' });
         });
 
-        const total = [].concat(...Object.values(teams), indivs);
-        if (total.length === 0) return alert("Please enter at least one angler name.");
+        const totalAnglers = [].concat(...Object.values(teams), indivs);
+        if (totalAnglers.length === 0) return alert("Please enter at least one angler name.");
 
-        const cap = Math.ceil(total.length / nZones);
+        const cap = Math.ceil(totalAnglers.length / nZones);
         let u1 = new Set(), u2 = new Set();
 
         Object.keys(teams).forEach(t => {
@@ -189,7 +169,7 @@
         let html = `<button class="btn-print no-print" onclick="window.print()">Print Hard Copy</button>`;
         const makeTable = (data, title) => `
             <div class="res-block">
-                <h3>${title}</h3>
+                <h3 style="margin:0 0 10px 0;">${title}</h3>
                 <table>
                     <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
                     <tbody>${data.map(a => `
