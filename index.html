@@ -3,57 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.1</title>
+    <title>Match Pro v7.9.2</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
             --accent: #38bdf8; --success: #10b981; --border: #334155;
-            /* Zone Colors */
-            --z-red: #fee2e2; --z-yellow: #fef9c3; --z-green: #dcfce7; --z-blue: #dbeafe;
-            --z-orange: #ffedd5; --z-purple: #f3e8ff;
+            --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
         
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        .setup-bar { display: flex; gap: 15px; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 30px; align-items: flex-end; border: 1px solid var(--border); }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .setup-bar { display: flex; gap: 15px; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 25px; align-items: flex-end; border: 1px solid var(--border); }
         .input-group label { display: block; font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
-        input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; }
-        
-        /* Expandable Cards */
-        .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); overflow: hidden; }
-        .card-header { padding: 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .card-body { max-height: 0; padding: 0 15px; transition: all 0.3s ease-out; opacity: 0; pointer-events: none; }
-        .team-card.open .card-body { max-height: 300px; padding: 15px; opacity: 1; border-top: 1px solid var(--border); pointer-events: auto; }
+        input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--accent); }
+
+        /* Team Card UI */
+        .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .card-header { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .card-body { max-height: 0; padding: 0 15px; transition: all 0.3s ease; opacity: 0; overflow: hidden; }
+        .team-card.open .card-body { max-height: 300px; padding: 15px; opacity: 1; border-top: 1px solid var(--border); }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
         .btn-init { background: var(--accent); color: var(--bg); padding: 10px 20px; }
         .btn-draw { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 20px; }
         .btn-print { background: #f59e0b; color: white; padding: 12px 24px; margin-bottom: 20px; }
 
-        /* Results Display with Color Coding */
-        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; overflow: hidden; }
-        .res-block h3 { margin: 0 0 10px 0; font-size: 1.2rem; border-bottom: 2px solid #e2e8f0; }
+        /* Results with Zone Colors */
+        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; }
+        .res-block h3 { margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 0.8rem; color: #64748b; padding: 8px; }
-        td { padding: 10px 8px; font-weight: 500; border-bottom: 1px solid rgba(0,0,0,0.05); }
-
-        /* Row Color Classes */
-        .row-red { background-color: #fca5a5 !important; }
-        .row-yellow { background-color: #fde047 !important; }
-        .row-green { background-color: #86efac !important; }
-        .row-blue { background-color: #93c5fd !important; }
-        .row-orange { background-color: #fdba74 !important; }
-        .row-purple { background-color: #d8b4fe !important; }
+        td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
+        .row-red { background-color: var(--row-red) !important; }
+        .row-yellow { background-color: var(--row-yellow) !important; }
+        .row-green { background-color: var(--row-green) !important; }
+        .row-blue { background-color: var(--row-blue) !important; }
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; color: black; padding: 0; }
-            .container { max-width: 100%; }
-            .res-block { border: 1px solid #ccc; page-break-inside: avoid; }
-            /* Forces background colors to print */
+            body { background: white; color: black; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .res-block { page-break-inside: avoid; border: 1px solid #ddd; }
         }
     </style>
 </head>
@@ -61,10 +54,7 @@
 
 <div class="container">
     <header class="no-print">
-        <div>
-            <h1 style="margin:0;">MATCH PRO</h1>
-            <small style="color: var(--accent)">Competition Engine v7.9.1</small>
-        </div>
+        <div><h1>MATCH PRO</h1><small style="color: var(--accent)">v7.9.2 | Team & Individual Engine</small></div>
         <div id="status">Ready</div>
     </header>
 
@@ -73,10 +63,10 @@
             <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
             <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24"></div>
             <div class="input-group"><label>Individuals</label><input type="number" id="numIndivs" value="2"></div>
-            <button class="btn-init" onclick="initGrid()">Initialize</button>
+            <button class="btn-init" onclick="initGrid()">Initialize Grid</button>
         </div>
         <div id="entryContainer"></div>
-        <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Draw</button>
+        <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Competition Draw</button>
     </div>
 
     <div id="resultsArea"></div>
@@ -97,14 +87,14 @@
             card.innerHTML = `
                 <div class="card-header" onclick="toggleCard(this)">
                     <div style="background:var(--accent);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:bold;">${i}</div>
-                    <input type="text" class="main-input t-name" placeholder="Team Name..." onclick="event.stopPropagation()">
+                    <input type="text" class="main-input t-name" placeholder="Team Name (e.g. Kilsyth Anglers)" onclick="event.stopPropagation()">
                 </div>
                 <div class="card-body">
                     <div class="angler-grid">
-                        <input type="text" class="main-input a-name" placeholder="Angler 1">
-                        <input type="text" class="main-input a-name" placeholder="Angler 2">
-                        <input type="text" class="main-input a-name" placeholder="Angler 3">
-                        <input type="text" class="main-input a-name" placeholder="Angler 4">
+                        <input type="text" class="main-input a-name" placeholder="Angler 1 Name">
+                        <input type="text" class="main-input a-name" placeholder="Angler 2 Name">
+                        <input type="text" class="main-input a-name" placeholder="Angler 3 Name">
+                        <input type="text" class="main-input a-name" placeholder="Angler 4 Name">
                     </div>
                 </div>`;
             container.appendChild(card);
@@ -113,4 +103,84 @@
         if(nIndivs > 0) {
             const iCard = document.createElement('div');
             iCard.className = 'team-card open';
-            iCard.innerHTML = `<div class="card-header"><strong>Individual
+            iCard.innerHTML = `<div class="card-header"><strong>Individual Entries</strong></div>
+                               <div class="card-body"><div class="angler-grid" id="indivGrid"></div></div>`;
+            const grid = iCard.querySelector('#indivGrid');
+            for(let j=0; j<nIndivs; j++) grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Angler Name">`;
+            container.appendChild(iCard);
+        }
+        document.getElementById('drawBtn').style.display = 'block';
+    }
+
+    function toggleCard(header) {
+        const card = header.parentElement;
+        const wasOpen = card.classList.contains('open');
+        document.querySelectorAll('.team-card').forEach(c => c.classList.remove('open'));
+        if (!wasOpen) card.classList.add('open');
+    }
+
+    function runDraw() {
+        const nZones = parseInt(document.getElementById('numZones').value);
+        let teams = {}; let indivs = [];
+
+        document.querySelectorAll('.team-card').forEach(card => {
+            const tIn = card.querySelector('.t-name');
+            if (tIn) {
+                const teamName = tIn.value || "Unnamed Team";
+                const names = Array.from(card.querySelectorAll('.a-name')).map(i => i.value).filter(v => v !== "");
+                if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName }));
+            }
+        });
+        document.querySelectorAll('.i-name').forEach(input => { if (input.value) indivs.push({ name: input.value, team: 'Individual' }); });
+
+        const total = [].concat(...Object.values(teams), indivs);
+        const cap = Math.ceil(total.length / nZones);
+        let u1 = new Set(), u2 = new Set();
+
+        Object.keys(teams).forEach(t => {
+            let zs = [...Array(nZones).keys()].sort(() => Math.random() - 0.5);
+            teams[t].forEach((a, i) => {
+                const z = zs[i % nZones];
+                a.z1 = z; a.p1 = getP(z, cap, u1);
+                a.z2 = (z + 1) % nZones; a.p2 = getP(a.z2, cap, u2);
+            });
+        });
+        indivs.forEach(a => {
+            const z = Math.floor(Math.random() * nZones);
+            a.z1 = z; a.p1 = getP(z, cap, u1);
+            a.z2 = (z + 1) % nZones; a.p2 = getP(a.z2, cap, u2);
+        });
+
+        render(teams, indivs);
+    }
+
+    function getP(z, s, u) {
+        let p; do { p = (z * s) + Math.floor(Math.random() * s) + 1; } while (u.has(p));
+        u.add(p); return p;
+    }
+
+    function render(teams, indivs) {
+        let html = `<button class="btn-print no-print" onclick="window.print()">Print Hard Copy</button>`;
+        const makeTable = (data, title) => `
+            <div class="res-block">
+                <h3>${title}</h3>
+                <table>
+                    <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
+                    <tbody>${data.map(a => `
+                        <tr>
+                            <td><strong>${a.name}</strong></td>
+                            <td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} - Peg ${a.p1}</td>
+                            <td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} - Peg ${a.p2}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+
+        Object.keys(teams).forEach(t => html += makeTable(teams[t], "Team: " + t));
+        if(indivs.length) html += makeTable(indivs, "Individual Anglers");
+        document.getElementById('resultsArea').innerHTML = html;
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+</body>
+</html>
