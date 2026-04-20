@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fishing Match Manager v7.5.0</title>
+    <title>Fishing Match Manager v7.6.0</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
             --light: #f8f9fa; --border: #dcdde1;
         }
-        body { font-family: sans-serif; background: #edf2f7; color: var(--primary); margin: 0; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #edf2f7; color: var(--primary); margin: 0; padding: 20px; line-height: 1.5; }
         .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         header { border-bottom: 2px solid var(--light); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         
@@ -17,24 +17,35 @@
         .setup-box label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
         .setup-box input { width: 80%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; }
         
-        .grid-container { overflow-x: auto; margin-bottom: 20px; max-height: 500px; border: 1px solid var(--border); }
+        .grid-container { overflow-x: auto; margin-bottom: 20px; max-height: 500px; border: 1px solid var(--border); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; background: white; }
         th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
         th { background: var(--primary); color: white; position: sticky; top: 0; }
         
         .team-group { border-bottom: 3px solid var(--primary); }
         .row-indiv { background: #fdf1ff; }
-        input[type="text"] { width: 95%; border: none; background: transparent; outline: none; }
+        input[type="text"] { width: 95%; border: none; background: transparent; outline: none; font-size: 14px; }
         
-        .controls { margin: 20px 0; display: flex; gap: 10px; }
-        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .controls { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
         .btn-setup { background: var(--accent); color: white; }
-        .btn-draw { background: var(--success); color: white; flex-grow: 1; font-size: 1.2rem; }
+        .btn-draw { background: var(--success); color: white; flex-grow: 1; font-size: 1.1rem; }
+        .btn-pdf { background: #e67e22; color: white; font-size: 1.1rem; }
         
-        .result-zone { padding: 10px; margin: 5px 0; border-radius: 4px; font-weight: bold; }
-        .z0 { background: #ffcccc; } .z1 { background: #fff3cd; } .z2 { background: #d4edda; } .z3 { background: #d1ecf1; }
+        .result-zone { padding: 8px; margin: 2px 0; border-radius: 4px; font-weight: bold; text-align: center; display: block; }
+        .z0 { background: #ffcccc; color: #900; } 
+        .z1 { background: #fff3cd; color: #856404; } 
+        .z2 { background: #d4edda; color: #155724; } 
+        .z3 { background: #d1ecf1; color: #0c5460; }
+        .z4 { background: #ffe5d1; color: #d35400; }
+        .z5 { background: #ebdef0; color: #8e44ad; }
 
-        @media print { .no-print { display: none; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
+            th { background: #eee !important; color: black !important; }
+        }
     </style>
 </head>
 <body>
@@ -43,10 +54,10 @@
     <header>
         <div>
             <h1>Fishing Match Manager</h1>
-            <p>Single Source of Truth: Version 7.5.0</p>
+            <p>Single Source of Truth: Version 7.6.0</p>
         </div>
         <div style="text-align:right">
-            <span style="background:#2c3e50; color:white; padding:5px 10px; border-radius:15px;">v7.5.0</span>
+            <span style="background:#2c3e50; color:white; padding:5px 10px; border-radius:15px;">v7.6.0</span>
         </div>
     </header>
 
@@ -54,7 +65,7 @@
         <div class="setup-box">
             <div>
                 <label>Number of Zones</label>
-                <input type="number" id="numZones" value="4" min="1">
+                <input type="number" id="numZones" value="4" min="1" max="6">
             </div>
             <div>
                 <label>Number of Teams</label>
@@ -65,7 +76,7 @@
                 <input type="number" id="numIndivs" value="2" min="0">
             </div>
             <div style="display:flex; align-items:flex-end;">
-                <button class="btn-setup" onclick="initializeGrid()">Initialize Entry Table</button>
+                <button class="btn-setup" onclick="initializeGrid()">Initialize Table</button>
             </div>
         </div>
 
@@ -83,7 +94,8 @@
         </div>
 
         <div class="controls" id="drawControls" style="display:none;">
-            <button class="btn-draw" onclick="processDraw()">GENERATE 2-DAY DRAW</button>
+            <button class="btn-draw" onclick="processDraw()">GENERATE DRAW</button>
+            <button class="btn-pdf" id="pdfBtn" style="display:none;" onclick="window.print()">PRINT TO PDF</button>
         </div>
     </div>
 
@@ -91,51 +103,87 @@
 </div>
 
 <script>
-    const zoneColors = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver'];
+    const zoneColors = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple'];
     
-    function initializeGrid() {
+    // Load data from localStorage on start
+    window.onload = () => {
+        const saved = localStorage.getItem('match_v760_data');
+        if (saved) {
+            const data = JSON.parse(saved);
+            document.getElementById('numZones').value = data.zones;
+            document.getElementById('numTeams').value = data.teamsCount;
+            document.getElementById('numIndivs').value = data.indivsCount;
+            initializeGrid(true); // true means use saved names
+        }
+    };
+
+    function initializeGrid(loadNames = false) {
         const nZones = parseInt(document.getElementById('numZones').value);
         const nTeams = parseInt(document.getElementById('numTeams').value);
         const nIndivs = parseInt(document.getElementById('numIndivs').value);
         const body = document.getElementById('entryBody');
-        body.innerHTML = '';
+        
+        let savedNames = [];
+        if (loadNames) {
+            const data = JSON.parse(localStorage.getItem('match_v760_data'));
+            savedNames = data.names || [];
+        }
 
-        // Add Team Rows
+        body.innerHTML = '';
+        let count = 0;
+
         for (let t = 1; t <= nTeams; t++) {
             const teamId = `team-${t}`;
             for (let m = 1; m <= 4; m++) {
                 const tr = document.createElement('tr');
                 if (m === 4) tr.className = 'team-group';
+                const nameVal = savedNames[count] || "";
                 tr.innerHTML = `
-                    <td>${body.rows.length + 1}</td>
-                    <td><input type="text" class="t-name" value="Team ${t}" data-tid="${teamId}" oninput="syncTeam(this, '${teamId}')"></td>
-                    <td><input type="text" class="a-name" placeholder="Enter Name"></td>
+                    <td>${count + 1}</td>
+                    <td><input type="text" class="t-name" value="Team ${t}" data-tid="${tid = teamId}" oninput="syncTeam(this, '${tid}')"></td>
+                    <td><input type="text" class="a-name" value="${nameVal}" placeholder="Enter Name" oninput="saveCurrentState()"></td>
                 `;
                 body.appendChild(tr);
+                count++;
             }
         }
 
-        // Add Individual Rows
         for (let i = 1; i <= nIndivs; i++) {
             const tr = document.createElement('tr');
             tr.className = 'row-indiv';
+            const nameVal = savedNames[count] || "";
             tr.innerHTML = `
-                <td>${body.rows.length + 1}</td>
+                <td>${count + 1}</td>
                 <td><input type="text" value="INDIVIDUAL" disabled></td>
-                <td><input type="text" class="a-name" placeholder="Enter Name"></td>
+                <td><input type="text" class="a-name" value="${nameVal}" placeholder="Enter Name" oninput="saveCurrentState()"></td>
             `;
             body.appendChild(tr);
+            count++;
         }
 
         document.getElementById('gridWrapper').style.display = 'block';
         document.getElementById('drawControls').style.display = 'flex';
+        saveCurrentState();
     }
 
     function syncTeam(el, tid) {
         document.querySelectorAll(`[data-tid="${tid}"]`).forEach(input => input.value = el.value);
+        saveCurrentState();
+    }
+
+    function saveCurrentState() {
+        const names = Array.from(document.querySelectorAll('.a-name')).map(i => i.value);
+        const data = {
+            zones: document.getElementById('numZones').value,
+            teamsCount: document.getElementById('numTeams').value,
+            indivsCount: document.getElementById('numIndivs').value,
+            names: names
+        };
+        localStorage.setItem('match_v760_data', JSON.stringify(data));
     }
 
     function processDraw() {
+        saveCurrentState();
         const nZones = parseInt(document.getElementById('numZones').value);
         const rows = document.querySelectorAll('#entryBody tr');
         let anglers = [];
@@ -151,7 +199,8 @@
             }
         });
 
-        // 1. Grouping
+        if (anglers.length === 0) return alert("Please enter angler names first.");
+
         const teams = {};
         const individuals = [];
         anglers.forEach(a => {
@@ -161,7 +210,6 @@
             } else individuals.push(a);
         });
 
-        // 2. Day 1 Allocation
         const zoneCapacity = Math.ceil(anglers.length / nZones);
         let usedPegsD1 = new Set();
         let zoneCountsD1 = Array(nZones).fill(0);
@@ -183,7 +231,6 @@
             zoneCountsD1[zIdx]++;
         });
 
-        // 3. Day 2 Allocation (Rotate)
         let usedPegsD2 = new Set();
         anglers.forEach(m => {
             m.d2z = (m.d1z + 1) % nZones;
@@ -191,30 +238,38 @@
         });
 
         renderResults(anglers);
+        document.getElementById('pdfBtn').style.display = 'inline-block';
     }
 
     function getPeg(zIdx, cap, used) {
         let p;
         const offset = zIdx * cap;
-        do { p = Math.floor(Math.random() * cap) + 1 + offset; }
-        while (used.has(p));
+        let attempts = 0;
+        do { 
+            p = Math.floor(Math.random() * cap) + 1 + offset; 
+            attempts++;
+        } while (used.has(p) && attempts < 1000);
         used.add(p);
         return p;
     }
 
     function renderResults(anglers) {
-        let html = `<h3>Official Match Draw</h3><table style="width:100%">
-            <thead><tr><th>Angler</th><th>Team</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>`;
+        let html = `<h2 style="margin-top:40px; text-align:center;">Official Match Draw Sheets</h2>`;
+        
+        // Detailed Table
+        html += `<table style="width:100%; margin-top:20px;">
+            <thead><tr><th>Angler Name</th><th>Team</th><th>Day 1 (Zone/Peg)</th><th>Day 2 (Zone/Peg)</th></tr></thead><tbody>`;
         
         anglers.sort((a,b) => a.d1p - b.d1p).forEach(a => {
             html += `<tr>
-                <td>${a.name}</td>
+                <td><strong>${a.name}</strong></td>
                 <td><small>${a.team}</small></td>
-                <td class="result-zone z${a.d1z}">${zoneColors[a.d1z]} ${a.d1p}</td>
-                <td class="result-zone z${a.d2z}">${zoneColors[a.d2z]} ${a.d2p}</td>
+                <td><span class="result-zone z${a.d1z}">${zoneColors[a.d1z]} - Peg ${a.d1p}</span></td>
+                <td><span class="result-zone z${a.d2z}">${zoneColors[a.d2z]} - Peg ${a.d2p}</span></td>
             </tr>`;
         });
         html += `</tbody></table>`;
+        
         document.getElementById('resultsArea').innerHTML = html;
     }
 </script>
