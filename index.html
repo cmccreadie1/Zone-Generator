@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.2</title>
+    <title>Match Pro v7.9.3</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -19,7 +19,6 @@
         input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; }
         input:focus { border-color: var(--accent); }
 
-        /* Team Card UI */
         .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
         .card-header { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
         .card-body { max-height: 0; padding: 0 15px; transition: all 0.3s ease; opacity: 0; overflow: hidden; }
@@ -31,7 +30,6 @@
         .btn-draw { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 20px; }
         .btn-print { background: #f59e0b; color: white; padding: 12px 24px; margin-bottom: 20px; }
 
-        /* Results with Zone Colors */
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; }
         .res-block h3 { margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
         table { width: 100%; border-collapse: collapse; }
@@ -54,7 +52,7 @@
 
 <div class="container">
     <header class="no-print">
-        <div><h1>MATCH PRO</h1><small style="color: var(--accent)">v7.9.2 | Team & Individual Engine</small></div>
+        <div><h1>MATCH PRO</h1><small style="color: var(--accent)">v7.9.3 | Stable Release</small></div>
         <div id="status">Ready</div>
     </header>
 
@@ -73,43 +71,63 @@
 </div>
 
 <script>
-    const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple'];
+    const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Bronze'];
 
     function initGrid() {
-        const nTeams = parseInt(document.getElementById('numTeams').value);
-        const nIndivs = parseInt(document.getElementById('numIndivs').value);
-        const container = document.getElementById('entryContainer');
-        container.innerHTML = '';
+        // Get values and force them to be numbers
+        const nZones = parseInt(document.getElementById('numZones').value) || 0;
+        const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
+        const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
+        const status = document.getElementById('status');
+        
+        if (nZones < 1) {
+            status.innerText = "Error: Set Zones";
+            status.style.color = "red";
+            return;
+        }
 
+        const container = document.getElementById('entryContainer');
+        container.innerHTML = ''; // Clear previous grid
+
+        // Build Team Cards
         for (let i = 1; i <= nTeams; i++) {
             const card = document.createElement('div');
             card.className = 'team-card';
             card.innerHTML = `
                 <div class="card-header" onclick="toggleCard(this)">
                     <div style="background:var(--accent);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:bold;">${i}</div>
-                    <input type="text" class="main-input t-name" placeholder="Team Name (e.g. Kilsyth Anglers)" onclick="event.stopPropagation()">
+                    <input type="text" class="main-input t-name" placeholder="Enter Team Name..." onclick="event.stopPropagation()">
                 </div>
                 <div class="card-body">
                     <div class="angler-grid">
-                        <input type="text" class="main-input a-name" placeholder="Angler 1 Name">
-                        <input type="text" class="main-input a-name" placeholder="Angler 2 Name">
-                        <input type="text" class="main-input a-name" placeholder="Angler 3 Name">
-                        <input type="text" class="main-input a-name" placeholder="Angler 4 Name">
+                        <input type="text" class="main-input a-name" placeholder="Angler 1">
+                        <input type="text" class="main-input a-name" placeholder="Angler 2">
+                        <input type="text" class="main-input a-name" placeholder="Angler 3">
+                        <input type="text" class="main-input a-name" placeholder="Angler 4">
                     </div>
                 </div>`;
             container.appendChild(card);
         }
 
+        // Build Individual Block
         if(nIndivs > 0) {
             const iCard = document.createElement('div');
             iCard.className = 'team-card open';
-            iCard.innerHTML = `<div class="card-header"><strong>Individual Entries</strong></div>
-                               <div class="card-body"><div class="angler-grid" id="indivGrid"></div></div>`;
-            const grid = iCard.querySelector('#indivGrid');
-            for(let j=0; j<nIndivs; j++) grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Angler Name">`;
+            iCard.innerHTML = `
+                <div class="card-header"><strong>Individual Entries</strong></div>
+                <div class="card-body">
+                    <div class="angler-grid" id="indivGrid"></div>
+                </div>`;
             container.appendChild(iCard);
+            const grid = iCard.querySelector('#indivGrid');
+            for(let j=0; j<nIndivs; j++) {
+                grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Angler Name">`;
+            }
         }
+
         document.getElementById('drawBtn').style.display = 'block';
+        status.innerText = "Grid Ready";
+        status.style.color = "var(--success)";
     }
 
     function toggleCard(header) {
@@ -120,20 +138,25 @@
     }
 
     function runDraw() {
-        const nZones = parseInt(document.getElementById('numZones').value);
+        const nZones = parseInt(document.getElementById('numZones').value) || 4;
         let teams = {}; let indivs = [];
 
         document.querySelectorAll('.team-card').forEach(card => {
             const tIn = card.querySelector('.t-name');
             if (tIn) {
                 const teamName = tIn.value || "Unnamed Team";
-                const names = Array.from(card.querySelectorAll('.a-name')).map(i => i.value).filter(v => v !== "");
+                const names = Array.from(card.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v !== "");
                 if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName }));
             }
         });
-        document.querySelectorAll('.i-name').forEach(input => { if (input.value) indivs.push({ name: input.value, team: 'Individual' }); });
+
+        document.querySelectorAll('.i-name').forEach(input => {
+            if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual' });
+        });
 
         const total = [].concat(...Object.values(teams), indivs);
+        if (total.length === 0) return alert("Please enter at least one angler name.");
+
         const cap = Math.ceil(total.length / nZones);
         let u1 = new Set(), u2 = new Set();
 
@@ -145,6 +168,7 @@
                 a.z2 = (z + 1) % nZones; a.p2 = getP(a.z2, cap, u2);
             });
         });
+
         indivs.forEach(a => {
             const z = Math.floor(Math.random() * nZones);
             a.z1 = z; a.p1 = getP(z, cap, u1);
@@ -155,7 +179,9 @@
     }
 
     function getP(z, s, u) {
-        let p; do { p = (z * s) + Math.floor(Math.random() * s) + 1; } while (u.has(p));
+        let p, att = 0;
+        do { p = (z * s) + Math.floor(Math.random() * s) + 1; att++; } 
+        while (u.has(p) && att < 2000);
         u.add(p); return p;
     }
 
