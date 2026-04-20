@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishing Match Manager v7.5.0</title>
+    <style>
+        :root {
+            --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
+            --light: #f8f9fa; --border: #dcdde1;
+        }
+        body { font-family: sans-serif; background: #edf2f7; color: var(--primary); margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        header { border-bottom: 2px solid var(--light); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .setup-box { background: var(--light); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .setup-box label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+        .setup-box input { width: 80%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; }
+        
+        .grid-container { overflow-x: auto; margin-bottom: 20px; max-height: 500px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        th { background: var(--primary); color: white; position: sticky; top: 0; }
+        
+        .team-group { border-bottom: 3px solid var(--primary); }
+        .row-indiv { background: #fdf1ff; }
+        input[type="text"] { width: 95%; border: none; background: transparent; outline: none; }
+        
+        .controls { margin: 20px 0; display: flex; gap: 10px; }
+        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-setup { background: var(--accent); color: white; }
+        .btn-draw { background: var(--success); color: white; flex-grow: 1; font-size: 1.2rem; }
+        
+        .result-zone { padding: 10px; margin: 5px 0; border-radius: 4px; font-weight: bold; }
+        .z0 { background: #ffcccc; } .z1 { background: #fff3cd; } .z2 { background: #d4edda; } .z3 { background: #d1ecf1; }
+
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>Fishing Match Manager</h1>
+            <p>Single Source of Truth: Version 7.5.0</p>
+        </div>
+        <div style="text-align:right">
+            <span style="background:#2c3e50; color:white; padding:5px 10px; border-radius:15px;">v7.5.0</span>
+        </div>
+    </header>
+
+    <div class="no-print">
+        <div class="setup-box">
+            <div>
+                <label>Number of Zones</label>
+                <input type="number" id="numZones" value="4" min="1">
+            </div>
+            <div>
+                <label>Number of Teams</label>
+                <input type="number" id="numTeams" value="24" min="0">
+            </div>
+            <div>
+                <label>Individuals</label>
+                <input type="number" id="numIndivs" value="2" min="0">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="btn-setup" onclick="initializeGrid()">Initialize Entry Table</button>
+            </div>
+        </div>
+
+        <div class="grid-container" id="gridWrapper" style="display:none;">
+            <table id="entryTable">
+                <thead>
+                    <tr>
+                        <th width="50">#</th>
+                        <th>Team Name</th>
+                        <th>Angler Name</th>
+                    </tr>
+                </thead>
+                <tbody id="entryBody"></tbody>
+            </table>
+        </div>
+
+        <div class="controls" id="drawControls" style="display:none;">
+            <button class="btn-draw" onclick="processDraw()">GENERATE 2-DAY DRAW</button>
+        </div>
+    </div>
+
+    <div id="resultsArea"></div>
+</div>
+
+<script>
+    const zoneColors = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver'];
+    
+    function initializeGrid() {
+        const nZones = parseInt(document.getElementById('numZones').value);
+        const nTeams = parseInt(document.getElementById('numTeams').value);
+        const nIndivs = parseInt(document.getElementById('numIndivs').value);
+        const body = document.getElementById('entryBody');
+        body.innerHTML = '';
+
+        // Add Team Rows
+        for (let t = 1; t <= nTeams; t++) {
+            const teamId = `team-${t}`;
+            for (let m = 1; m <= 4; m++) {
+                const tr = document.createElement('tr');
+                if (m === 4) tr.className = 'team-group';
+                tr.innerHTML = `
+                    <td>${body.rows.length + 1}</td>
+                    <td><input type="text" class="t-name" value="Team ${t}" data-tid="${teamId}" oninput="syncTeam(this, '${teamId}')"></td>
+                    <td><input type="text" class="a-name" placeholder="Enter Name"></td>
+                `;
+                body.appendChild(tr);
+            }
+        }
+
+        // Add Individual Rows
+        for (let i = 1; i <= nIndivs; i++) {
+            const tr = document.createElement('tr');
+            tr.className = 'row-indiv';
+            tr.innerHTML = `
+                <td>${body.rows.length + 1}</td>
+                <td><input type="text" value="INDIVIDUAL" disabled></td>
+                <td><input type="text" class="a-name" placeholder="Enter Name"></td>
+            `;
+            body.appendChild(tr);
+        }
+
+        document.getElementById('gridWrapper').style.display = 'block';
+        document.getElementById('drawControls').style.display = 'flex';
+    }
+
+    function syncTeam(el, tid) {
+        document.querySelectorAll(`[data-tid="${tid}"]`).forEach(input => input.value = el.value);
+    }
+
+    function processDraw() {
+        const nZones = parseInt(document.getElementById('numZones').value);
+        const rows = document.querySelectorAll('#entryBody tr');
+        let anglers = [];
+
+        rows.forEach(row => {
+            const aName = row.querySelector('.a-name').value;
+            if (aName) {
+                anglers.push({
+                    name: aName,
+                    team: row.querySelector('.t-name') ? row.querySelector('.t-name').value : 'INDIVIDUAL',
+                    isTeam: row.querySelector('.t-name') && row.querySelector('.t-name').value !== 'INDIVIDUAL'
+                });
+            }
+        });
+
+        // 1. Grouping
+        const teams = {};
+        const individuals = [];
+        anglers.forEach(a => {
+            if (a.isTeam) {
+                if (!teams[a.team]) teams[a.team] = [];
+                teams[a.team].push(a);
+            } else individuals.push(a);
+        });
+
+        // 2. Day 1 Allocation
+        const zoneCapacity = Math.ceil(anglers.length / nZones);
+        let usedPegsD1 = new Set();
+        let zoneCountsD1 = Array(nZones).fill(0);
+
+        Object.values(teams).forEach(members => {
+            let zShuffle = Array.from({length: nZones}, (_, i) => i).sort(() => Math.random() - 0.5);
+            members.forEach((m, i) => {
+                const zIdx = zShuffle[i % nZones];
+                m.d1z = zIdx;
+                m.d1p = getPeg(zIdx, zoneCapacity, usedPegsD1);
+                zoneCountsD1[zIdx]++;
+            });
+        });
+
+        individuals.forEach(m => {
+            const zIdx = zoneCountsD1.indexOf(Math.min(...zoneCountsD1));
+            m.d1z = zIdx;
+            m.d1p = getPeg(zIdx, zoneCapacity, usedPegsD1);
+            zoneCountsD1[zIdx]++;
+        });
+
+        // 3. Day 2 Allocation (Rotate)
+        let usedPegsD2 = new Set();
+        anglers.forEach(m => {
+            m.d2z = (m.d1z + 1) % nZones;
+            m.d2p = getPeg(m.d2z, zoneCapacity, usedPegsD2);
+        });
+
+        renderResults(anglers);
+    }
+
+    function getPeg(zIdx, cap, used) {
+        let p;
+        const offset = zIdx * cap;
+        do { p = Math.floor(Math.random() * cap) + 1 + offset; }
+        while (used.has(p));
+        used.add(p);
+        return p;
+    }
+
+    function renderResults(anglers) {
+        let html = `<h3>Official Match Draw</h3><table style="width:100%">
+            <thead><tr><th>Angler</th><th>Team</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>`;
+        
+        anglers.sort((a,b) => a.d1p - b.d1p).forEach(a => {
+            html += `<tr>
+                <td>${a.name}</td>
+                <td><small>${a.team}</small></td>
+                <td class="result-zone z${a.d1z}">${zoneColors[a.d1z]} ${a.d1p}</td>
+                <td class="result-zone z${a.d2z}">${zoneColors[a.d2z]} ${a.d2p}</td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        document.getElementById('resultsArea').innerHTML = html;
+    }
+</script>
+</body>
+</html>
