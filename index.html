@@ -3,75 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fishing Match Manager v7.6.1</title>
+    <title>Fishing Match Manager v7.7.0</title>
     <style>
         :root {
             --primary: #2c3e50; --accent: #3498db; --success: #27ae60;
             --light: #f8f9fa; --border: #dcdde1;
         }
         body { font-family: -apple-system, sans-serif; background: #edf2f7; color: var(--primary); margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* Setup UI */
-        .setup-box { background: var(--light); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        /* Input Grid */
+        .setup-box { background: var(--light); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end; }
+        .setup-box div { flex: 1; }
         .setup-box label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
-        .setup-box input { width: 80%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; }
+        .setup-box input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
         
-        .grid-container { overflow-x: auto; margin-bottom: 20px; max-height: 500px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        .grid-container { overflow-x: auto; margin-bottom: 20px; max-height: 500px; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-bottom: 30px; }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: left; }
         th { background: var(--primary); color: white; position: sticky; top: 0; }
         
+        .team-row-group { border-bottom: 3px solid var(--primary); }
+        input[type="text"] { width: 100%; border: 1px solid transparent; background: transparent; outline: none; padding: 4px; }
+        input[type="text"]:focus { border-bottom: 1px solid var(--accent); background: #fff; }
+        
         .controls { margin: 20px 0; display: flex; gap: 10px; }
-        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-setup { background: var(--accent); color: white; }
         .btn-draw { background: var(--success); color: white; flex-grow: 1; font-size: 1.1rem; }
         .btn-print { background: #e67e22; color: white; font-size: 1.1rem; }
 
-        /* Print Styles - This is what creates your hard copy */
+        /* Results Grouping Styles */
+        .result-group-header { background: #eee; font-weight: bold; padding: 10px; border: 1px solid var(--border); margin-top: 20px; }
+
         @media print {
-            .no-print, .setup-box, .grid-container, .controls, button { display: none !important; }
+            .no-print { display: none !important; }
             body { background: white; padding: 0; }
             .container { box-shadow: none; width: 100%; max-width: 100%; }
-            table { font-size: 12px; }
-            th { background: #eee !important; color: black !important; }
-            tr { page-break-inside: avoid; }
+            table { font-size: 11px; page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
             .print-only { display: block !important; }
+            h2 { border-bottom: 2px solid #000; padding-bottom: 5px; }
         }
-        .print-only { display: none; text-align: center; margin-bottom: 20px; }
+        .print-only { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="print-only">
-        <h1>Official Match Draw Sheet</h1>
+        <h1 id="matchTitlePrint">Match Draw Sheet</h1>
         <p id="printTimestamp"></p>
     </div>
 
     <header class="no-print">
-        <h1>Match Manager v7.6.1</h1>
-        <p>Define setup -> Enter names -> Generate -> Print Hard Copy</p>
+        <h1>Match Manager v7.7.0</h1>
+        <p>1. Set counts → 2. Enter Names → 3. Print Results</p>
     </header>
 
     <div class="no-print">
         <div class="setup-box">
             <div><label>Zones</label><input type="number" id="numZones" value="4"></div>
-            <div><label>Teams</label><input type="number" id="numTeams" value="24"></div>
+            <div><label>Teams of 4</label><input type="number" id="numTeams" value="24"></div>
             <div><label>Individuals</label><input type="number" id="numIndivs" value="2"></div>
-            <div style="display:flex; align-items:flex-end;"><button class="btn-setup" onclick="initializeGrid()">Create Table</button></div>
+            <button class="btn-setup" onclick="initializeGrid()">Initialize Grid</button>
         </div>
 
         <div class="grid-container" id="gridWrapper" style="display:none;">
             <table>
-                <thead><tr><th>#</th><th>Team Name</th><th>Angler Name</th></tr></thead>
+                <thead><tr><th width="40">#</th><th>Team Name (First row fills group)</th><th>Angler Name</th></tr></thead>
                 <tbody id="entryBody"></tbody>
             </table>
         </div>
 
         <div class="controls" id="drawControls" style="display:none;">
-            <button class="btn-draw" onclick="processDraw()">GENERATE DRAW</button>
-            <button class="btn-print" id="printBtn" style="display:none;" onclick="printHardCopy()">PRINT HARD COPY</button>
+            <button class="btn-draw" onclick="processDraw()">GENERATE COMPETITION DRAW</button>
+            <button class="btn-print" id="printBtn" style="display:none;" onclick="window.print()">PRINT HARD COPY</button>
         </div>
     </div>
 
@@ -79,7 +86,7 @@
 </div>
 
 <script>
-    const zoneNames = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple'];
+    const zoneNames = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Gold'];
 
     function initializeGrid() {
         const nTeams = parseInt(document.getElementById('numTeams').value);
@@ -88,59 +95,103 @@
         body.innerHTML = '';
 
         for (let t = 1; t <= nTeams; t++) {
+            const teamGroupId = `tg-${t}`;
             for (let m = 1; m <= 4; m++) {
-                body.innerHTML += `<tr><td>${body.rows.length+1}</td><td><input type="text" value="Team ${t}" class="t-name"></td><td><input type="text" class="a-name" placeholder="Name"></td></tr>`;
+                const tr = document.createElement('tr');
+                if (m === 4) tr.className = 'team-row-group';
+                tr.innerHTML = `
+                    <td>${body.rows.length + 1}</td>
+                    <td><input type="text" placeholder="Enter Team Name..." class="t-input" data-group="${teamGroupId}" oninput="syncTeam(this, '${teamGroupId}')"></td>
+                    <td><input type="text" placeholder="Angler Name..." class="a-input"></td>
+                `;
+                body.appendChild(tr);
             }
         }
         for (let i = 1; i <= nIndivs; i++) {
-            body.innerHTML += `<tr style="background:#f9f9f9"><td>${body.rows.length+1}</td><td><input type="text" value="INDIVIDUAL" disabled></td><td><input type="text" class="a-name" placeholder="Name"></td></tr>`;
+            body.innerHTML += `<tr style="background:#fdf1ff"><td>${body.rows.length+1}</td><td><input type="text" value="INDIVIDUAL" disabled></td><td><input type="text" placeholder="Angler Name..." class="a-input"></td></tr>`;
         }
         document.getElementById('gridWrapper').style.display = 'block';
         document.getElementById('drawControls').style.display = 'flex';
     }
 
+    function syncTeam(el, gid) {
+        document.querySelectorAll(`[data-group="${gid}"]`).forEach(input => input.value = el.value);
+    }
+
     function processDraw() {
         const nZones = parseInt(document.getElementById('numZones').value);
-        const anglers = [];
-        document.querySelectorAll('#entryBody tr').forEach(row => {
-            const name = row.querySelector('.a-name').value;
-            if(name) anglers.push({ name, team: row.querySelector('.t-name').value });
+        const rows = document.querySelectorAll('#entryBody tr');
+        let teamData = {};
+        let individuals = [];
+
+        rows.forEach(row => {
+            const aName = row.querySelector('.a-input').value.trim();
+            const tName = row.querySelector('.t-input') ? row.querySelector('.t-input').value.trim() : "INDIVIDUAL";
+            
+            if (aName) {
+                const angler = { name: aName, team: tName };
+                if (tName === "INDIVIDUAL" || tName === "") {
+                    individuals.push(angler);
+                } else {
+                    if (!teamData[tName]) teamData[tName] = [];
+                    teamData[tName].push(angler);
+                }
+            }
         });
 
-        if(anglers.length === 0) return alert("Enter names first!");
-
-        const zoneSize = Math.ceil(anglers.length / nZones);
+        const totalAnglers = [].concat(...Object.values(teamData), individuals);
+        const zoneSize = Math.ceil(totalAnglers.length / nZones);
         let usedD1 = new Set(), usedD2 = new Set();
 
-        // Assign Day 1 & Day 2 (Basic Rotation Logic)
-        anglers.forEach((a, i) => {
-            a.d1z = i % nZones;
-            a.d1p = getPeg(a.d1z, zoneSize, usedD1);
-            a.d2z = (a.d1z + 1) % nZones;
-            a.d2p = getPeg(a.d2z, zoneSize, usedD2);
+        // Assign Logic
+        Object.keys(teamData).forEach(tName => {
+            let zShuffle = Array.from({length: nZones}, (_, i) => i).sort(() => Math.random() - 0.5);
+            teamData[tName].forEach((m, i) => {
+                const z = zShuffle[i % nZones];
+                m.d1z = z; m.d1p = getPeg(z, zoneSize, usedD1);
+                m.d2z = (z + 1) % nZones; m.d2p = getPeg(m.d2z, zoneSize, usedD2);
+            });
         });
 
-        renderResults(anglers);
-        document.getElementById('printBtn').style.display = 'block';
+        individuals.forEach(m => {
+            const z = Math.floor(Math.random() * nZones);
+            m.d1z = z; m.d1p = getPeg(z, zoneSize, usedD1);
+            m.d2z = (z + 1) % nZones; m.d2p = getPeg(m.d2z, zoneSize, usedD2);
+        });
+
+        renderGroupedResults(teamData, individuals);
     }
 
     function getPeg(z, size, used) {
-        let p;
-        do { p = (z * size) + Math.floor(Math.random() * size) + 1; } while(used.has(p));
+        let p, attempts = 0;
+        do { p = (z * size) + Math.floor(Math.random() * size) + 1; attempts++; } 
+        while (used.has(p) && attempts < 1000);
         used.add(p); return p;
     }
 
-    function renderResults(anglers) {
-        let html = `<table><thead><tr><th>Angler</th><th>Team</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>`;
-        anglers.sort((a,b) => a.d1p - b.d1p).forEach(a => {
-            html += `<tr><td><strong>${a.name}</strong></td><td>${a.team}</td><td>${zoneNames[a.d1z]} Peg ${a.d1p}</td><td>${zoneNames[a.d2z]} Peg ${a.d2p}</td></tr>`;
+    function renderGroupedResults(teams, indivs) {
+        let html = `<h2>Team Competition Entries</h2>`;
+        Object.keys(teams).forEach(tName => {
+            html += `<div class="result-group-header">TEAM: ${tName}</div><table>
+                <thead><tr><th>Angler</th><th width="25%">Day 1</th><th width="25%">Day 2</th></tr></thead><tbody>`;
+            teams[tName].forEach(a => {
+                html += `<tr><td>${a.name}</td><td>${zoneNames[a.d1z]} (Peg ${a.d1p})</td><td>${zoneNames[a.d2z]} (Peg ${a.d2p})</td></tr>`;
+            });
+            html += `</tbody></table>`;
         });
-        document.getElementById('resultsArea').innerHTML = html + `</tbody></table>`;
-    }
 
-    function printHardCopy() {
-        document.getElementById('printTimestamp').innerText = "Generated on: " + new Date().toLocaleString();
-        window.print();
+        if (indivs.length > 0) {
+            html += `<h2>Individual Entries</h2><table>
+                <thead><tr><th>Angler</th><th width="25%">Day 1</th><th width="25%">Day 2</th></tr></thead><tbody>`;
+            indivs.forEach(a => {
+                html += `<tr><td>${a.name}</td><td>${zoneNames[a.d1z]} (Peg ${a.d1p})</td><td>${zoneNames[a.d2z]} (Peg ${a.d2p})</td></tr>`;
+            });
+            html += `</tbody></table>`;
+        }
+
+        document.getElementById('resultsArea').innerHTML = html;
+        document.getElementById('printBtn').style.display = 'block';
+        document.getElementById('printTimestamp').innerText = "Printed: " + new Date().toLocaleString();
     }
 </script>
 </body>
