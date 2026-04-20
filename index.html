@@ -3,50 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.0</title>
+    <title>Match Pro v7.9.1</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
             --accent: #38bdf8; --success: #10b981; --border: #334155;
+            /* Zone Colors */
+            --z-red: #fee2e2; --z-yellow: #fef9c3; --z-green: #dcfce7; --z-blue: #dbeafe;
+            --z-orange: #ffedd5; --z-purple: #f3e8ff;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
         
-        /* Header & Setup */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
         .setup-bar { display: flex; gap: 15px; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 30px; align-items: flex-end; border: 1px solid var(--border); }
-        .input-group { flex: 1; }
-        .input-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 5px; }
+        .input-group label { display: block; font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
         input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; }
         
         /* Expandable Cards */
-        .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); overflow: hidden; transition: 0.3s; }
-        .card-header { padding: 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); }
-        .card-header:hover { background: rgba(255,255,255,0.05); }
-        .team-index { background: var(--accent); color: var(--bg); font-weight: bold; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; }
-        .card-body { max-height: 0; padding: 0 15px; transition: all 0.4s ease-out; opacity: 0; }
-        .team-card.open { border-color: var(--accent); }
-        .team-card.open .card-body { max-height: 300px; padding: 15px; opacity: 1; border-top: 1px solid var(--border); }
+        .team-card { background: var(--card); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); overflow: hidden; }
+        .card-header { padding: 15px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .card-body { max-height: 0; padding: 0 15px; transition: all 0.3s ease-out; opacity: 0; pointer-events: none; }
+        .team-card.open .card-body { max-height: 300px; padding: 15px; opacity: 1; border-top: 1px solid var(--border); pointer-events: auto; }
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* Buttons */
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
         .btn-init { background: var(--accent); color: var(--bg); padding: 10px 20px; }
         .btn-draw { background: var(--success); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 20px; }
-        .btn-print { background: #f59e0b; color: white; padding: 10px 20px; margin-top: 10px; }
+        .btn-print { background: #f59e0b; color: white; padding: 12px 24px; margin-bottom: 20px; }
 
-        /* Results Display */
-        .results-section { margin-top: 50px; }
-        .res-block { background: white; color: black; border-radius: 8px; margin-bottom: 20px; padding: 20px; }
-        .res-block h3 { margin-top: 0; color: var(--bg); border-bottom: 2px solid var(--accent); }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td, th { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+        /* Results Display with Color Coding */
+        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; overflow: hidden; }
+        .res-block h3 { margin: 0 0 10px 0; font-size: 1.2rem; border-bottom: 2px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 0.8rem; color: #64748b; padding: 8px; }
+        td { padding: 10px 8px; font-weight: 500; border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+        /* Row Color Classes */
+        .row-red { background-color: #fca5a5 !important; }
+        .row-yellow { background-color: #fde047 !important; }
+        .row-green { background-color: #86efac !important; }
+        .row-blue { background-color: #93c5fd !important; }
+        .row-orange { background-color: #fdba74 !important; }
+        .row-purple { background-color: #d8b4fe !important; }
 
         @media print {
             .no-print { display: none !important; }
             body { background: white; color: black; padding: 0; }
-            .res-block { page-break-inside: avoid; border: 1px solid #000; }
+            .container { max-width: 100%; }
+            .res-block { border: 1px solid #ccc; page-break-inside: avoid; }
+            /* Forces background colors to print */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -55,35 +62,24 @@
 <div class="container">
     <header class="no-print">
         <div>
-            <h1 style="margin:0; font-size: 1.5rem;">MATCH PRO</h1>
-            <small style="color: var(--accent)">Competition Engine v7.9.0</small>
+            <h1 style="margin:0;">MATCH PRO</h1>
+            <small style="color: var(--accent)">Competition Engine v7.9.1</small>
         </div>
-        <div id="status">Setup Required</div>
+        <div id="status">Ready</div>
     </header>
 
     <div class="no-print">
         <div class="setup-bar">
-            <div class="input-group">
-                <label>Zones</label>
-                <input type="number" id="numZones" value="4">
-            </div>
-            <div class="input-group">
-                <label>Teams</label>
-                <input type="number" id="numTeams" value="24">
-            </div>
-            <div class="input-group">
-                <label>Individuals</label>
-                <input type="number" id="numIndivs" value="2">
-            </div>
+            <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
+            <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24"></div>
+            <div class="input-group"><label>Individuals</label><input type="number" id="numIndivs" value="2"></div>
             <button class="btn-init" onclick="initGrid()">Initialize</button>
         </div>
-
         <div id="entryContainer"></div>
-        
-        <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Generate Match Draw</button>
+        <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Draw</button>
     </div>
 
-    <div id="resultsArea" class="results-section"></div>
+    <div id="resultsArea"></div>
 </div>
 
 <script>
@@ -100,7 +96,7 @@
             card.className = 'team-card';
             card.innerHTML = `
                 <div class="card-header" onclick="toggleCard(this)">
-                    <div class="team-index">${i}</div>
+                    <div style="background:var(--accent);color:var(--bg);padding:2px 8px;border-radius:4px;font-weight:bold;">${i}</div>
                     <input type="text" class="main-input t-name" placeholder="Team Name..." onclick="event.stopPropagation()">
                 </div>
                 <div class="card-body">
@@ -110,99 +106,11 @@
                         <input type="text" class="main-input a-name" placeholder="Angler 3">
                         <input type="text" class="main-input a-name" placeholder="Angler 4">
                     </div>
-                </div>
-            `;
+                </div>`;
             container.appendChild(card);
         }
 
-        // Individuals
         if(nIndivs > 0) {
             const iCard = document.createElement('div');
             iCard.className = 'team-card open';
-            iCard.innerHTML = `<div class="card-header"><div class="team-index" style="background:#a855f7">I</div><strong>Individuals</strong></div>
-                               <div class="card-body"><div class="angler-grid" id="indivGrid"></div></div>`;
-            const grid = iCard.querySelector('#indivGrid');
-            for(let j=0; j<nIndivs; j++) {
-                grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Individual Name">`;
-            }
-            container.appendChild(iCard);
-        }
-
-        document.getElementById('drawBtn').style.display = 'block';
-        document.getElementById('status').innerText = 'Data Entry Mode';
-    }
-
-    function toggleCard(header) {
-        const card = header.parentElement;
-        const isOpen = card.classList.contains('open');
-        document.querySelectorAll('.team-card').forEach(c => c.classList.remove('open'));
-        if (!isOpen) card.classList.add('open');
-    }
-
-    function runDraw() {
-        const nZones = parseInt(document.getElementById('numZones').value);
-        let teams = {};
-        let individuals = [];
-
-        document.querySelectorAll('.team-card').forEach(card => {
-            const tInput = card.querySelector('.t-name');
-            if (tInput) {
-                const tName = tInput.value || "Untitled Team";
-                const aNames = Array.from(card.querySelectorAll('.a-name')).map(i => i.value).filter(v => v !== "");
-                if (aNames.length > 0) teams[tName] = aNames.map(name => ({ name, team: tName }));
-            }
-        });
-
-        document.querySelectorAll('.i-name').forEach(input => {
-            if (input.value) individuals.push({ name: input.value, team: 'Individual' });
-        });
-
-        const all = [].concat(...Object.values(teams), individuals);
-        const cap = Math.ceil(all.length / nZones);
-        let u1 = new Set(), u2 = new Set();
-
-        Object.keys(teams).forEach(tName => {
-            let zs = Array.from({length: nZones}, (_, i) => i).sort(() => Math.random() - 0.5);
-            teams[tName].forEach((a, i) => {
-                const z = zs[i % nZones];
-                a.d1z = z; a.d1p = getP(z, cap, u1);
-                a.d2z = (z + 1) % nZones; a.d2p = getP(a.d2z, cap, u2);
-            });
-        });
-
-        individuals.forEach(a => {
-            const z = Math.floor(Math.random() * nZones);
-            a.d1z = z; a.d1p = getP(z, cap, u1);
-            a.d2z = (z + 1) % nZones; a.d2p = getP(a.d2z, cap, u2);
-        });
-
-        render(teams, individuals);
-    }
-
-    function getP(z, size, used) {
-        let p, att = 0;
-        do { p = (z * size) + Math.floor(Math.random() * size) + 1; att++; } 
-        while (used.has(p) && att < 1000);
-        used.add(p); return p;
-    }
-
-    function render(teams, indivs) {
-        let html = `<button class="btn-print no-print" onclick="window.print()">Print Result Sheets</button>`;
-        Object.keys(teams).forEach(t => {
-            html += `<div class="res-block"><h3>Team: ${t}</h3><table>
-                <tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr>
-                ${teams[t].map(a => `<tr><td>${a.name}</td><td>${zones[a.d1z]} ${a.d1p}</td><td>${zones[a.d2z]} ${a.d2p}</td></tr>`).join('')}
-            </table></div>`;
-        });
-        if(indivs.length) {
-            html += `<div class="res-block"><h3>Individuals</h3><table>
-                <tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr>
-                ${indivs.map(a => `<tr><td>${a.name}</td><td>${zones[a.d1z]} ${a.d1p}</td><td>${zones[a.d2z]} ${a.d2p}</td></tr>`).join('')}
-            </table></div>`;
-        }
-        document.getElementById('resultsArea').innerHTML = html;
-        document.getElementById('status').innerText = 'Draw Complete';
-    }
-</script>
-</body>
-</html>
+            iCard.innerHTML = `<div class="card-header"><strong>Individual
