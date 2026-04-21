@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.5</title>
+    <title>Match Pro v7.9.6</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -13,32 +13,29 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { max-width: 950px; margin: 0 auto; padding-bottom: 120px; }
         
-        /* Fairness Popup */
         #fairnessOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .popup { background: var(--card); border: 2px solid var(--accent); border-radius: 12px; padding: 25px; max-width: 500px; position: relative; }
-        .popup h2 { color: var(--accent); margin-top: 0; }
-        .popup ul { padding-left: 20px; font-size: 0.9rem; line-height: 1.6; }
-        .close-btn { background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 15px; cursor: pointer; }
+        .popup { background: var(--card); border: 2px solid var(--accent); border-radius: 12px; padding: 25px; max-width: 500px; }
+        .close-btn { background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 15px; }
 
         header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
-        input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; font-size: 16px; }
-        input:focus { border-color: var(--accent); }
+        input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; }
 
         .team-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; }
         .team-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .team-num { background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        .team-num { background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
+        .controls { position: fixed; bottom: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 100; }
         button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
         .btn-init { background: var(--accent); color: var(--bg); padding: 12px; width: 100%; margin-top: 10px; }
-        .btn-draw { background: var(--success); color: white; padding: 20px; width: calc(100% - 30px); font-size: 1.2rem; position: fixed; bottom: 15px; left: 15px; z-index: 100; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .btn-clear { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.7rem; margin-top: 10px; opacity: 0.6; }
+        .btn-draw { background: var(--success); color: white; padding: 18px; flex: 2; font-size: 1.1rem; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .btn-secondary { background: #64748b; color: white; padding: 18px; flex: 1; }
 
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; }
         td, th { padding: 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .row-red { background-color: var(--row-red) !important; }
         .row-yellow { background-color: var(--row-yellow) !important; }
@@ -46,7 +43,7 @@
         .row-blue { background-color: var(--row-blue) !important; }
 
         @media print {
-            .no-print, #fairnessOverlay { display: none !important; }
+            .no-print, #fairnessOverlay, .controls { display: none !important; }
             body { background: white; color: black; padding: 0; }
             .res-block { page-break-inside: avoid; border: 1px solid #ddd; }
         }
@@ -56,100 +53,103 @@
 
 <div id="fairnessOverlay">
     <div class="popup">
-        <h2>Verification of Fairness</h2>
-        <p>This generator uses a cryptographically secure shuffle to ensure a 100% unbiased draw.</p>
-        <ul>
-            <li><strong>Zone Isolation:</strong> Teammates are automatically distributed across different zones. They can never fish the same zone.</li>
-            <li><strong>Fair Rotation:</strong> Anglers are guaranteed a different zone on Day 2.</li>
-            <li><strong>Random Pegging:</strong> Pegs are assigned via the Fisher-Yates algorithm, removing any "sticky ticket" bias.</li>
-        </ul>
-        <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">I Understand & Accept</button>
+        <h2>Match Pro Fairness Logic</h2>
+        <p>This system ensures a 100% unbiased draw using algorithmic randomization.</p>
+        <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">Begin Draw</button>
     </div>
 </div>
 
 <div class="container">
     <header class="no-print">
-        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v7.9.5</small></h1>
-        <button class="btn-clear no-print" onclick="clearAllData()">Reset All</button>
+        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v7.9.6</small></h1>
+        <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:5px 10px; font-size:10px;" onclick="resetApp()">Reset All</button>
     </header>
 
-    <div class="no-print">
+    <div class="no-print" id="setupSection">
         <div class="setup-bar">
             <div class="setup-grid">
-                <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4" onchange="saveState()"></div>
-                <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24" onchange="saveState()"></div>
-                <div class="input-group"><label>Indivs</label><input type="number" id="numIndivs" value="2" onchange="saveState()"></div>
+                <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
+                <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24"></div>
+                <div class="input-group"><label>Indivs</label><input type="number" id="numIndivs" value="2"></div>
             </div>
-            <button class="btn-init" onclick="initGrid()">Apply Setup & Load Data</button>
+            <button class="btn-init" onclick="initGrid()">Initialize Grid</button>
         </div>
-
         <div id="entryContainer"></div>
-        <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Competition Draw</button>
     </div>
 
     <div id="resultsArea"></div>
+
+    <div class="controls no-print" id="mainControls" style="display:none;">
+        <button id="drawBtn" class="btn-draw" onclick="runDraw()">Process Draw</button>
+    </div>
+
+    <div class="controls no-print" id="postDrawControls" style="display:none;">
+        <button class="btn-secondary" onclick="closeResults()">Close</button>
+        <button class="btn-draw" onclick="runDraw()">Re-Shuffle</button>
+        <button class="btn-secondary" style="background:#f59e0b" onclick="window.print()">Print</button>
+    </div>
 </div>
 
 <script>
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
+    let dataModified = false;
 
-    // Auto-load on startup
+    // 1. Exit Protection
+    window.addEventListener('beforeunload', (e) => {
+        if (dataModified) {
+            e.preventDefault();
+            e.returnValue = 'You have entered names. Are you sure you want to exit and clear all inputs?';
+        }
+    });
+
+    // 2. Load Session Data (Refresh protection only)
     window.onload = () => {
-        const saved = localStorage.getItem('matchpro_autosave');
+        const saved = sessionStorage.getItem('matchpro_session');
         if (saved) {
             const data = JSON.parse(saved);
             document.getElementById('numZones').value = data.z;
             document.getElementById('numTeams').value = data.t;
             document.getElementById('numIndivs').value = data.i;
-            initGrid(true); 
+            initGrid(true);
         }
     };
 
-    function saveState() {
+    function saveSession() {
+        dataModified = true;
         const data = {
             z: document.getElementById('numZones').value,
             t: document.getElementById('numTeams').value,
             i: document.getElementById('numIndivs').value,
             names: Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value)
         };
-        localStorage.setItem('matchpro_autosave', JSON.stringify(data));
+        sessionStorage.setItem('matchpro_session', JSON.stringify(data));
     }
 
-    function clearAllData() {
-        if(confirm("Wipe all names and setup?")) {
-            localStorage.removeItem('matchpro_autosave');
+    function resetApp() {
+        if(confirm("This will permanently clear all data. Proceed?")) {
+            sessionStorage.removeItem('matchpro_session');
+            dataModified = false;
             location.reload();
         }
     }
 
-    function initGrid(isAutoLoad = false) {
+    function initGrid(isAuto = false) {
         const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
         const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
         const container = document.getElementById('entryContainer');
         
-        let savedNames = [];
-        if (isAutoLoad) {
-            const data = JSON.parse(localStorage.getItem('matchpro_autosave'));
-            savedNames = data.names || [];
-        }
-
+        let savedNames = isAuto ? JSON.parse(sessionStorage.getItem('matchpro_session')).names : [];
         container.innerHTML = ''; 
-        let nameCounter = 0;
+        let idx = 0;
 
         for (let i = 1; i <= nTeams; i++) {
             const div = document.createElement('div');
             div.className = 'team-block';
-            const tNameVal = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
             div.innerHTML = `
-                <div class="team-header">
-                    <span class="team-num">${i}</span>
-                    <input type="text" class="main-input t-name" placeholder="Team Name" value="${tNameVal}" oninput="saveState()">
-                </div>
+                <div class="team-header"><span class="team-num">${i}</span>
+                <input type="text" class="t-name" placeholder="Team Name" value="${savedNames[idx++] || ""}" oninput="saveSession()"></div>
                 <div class="angler-grid">
-                    ${[1,2,3,4].map(() => {
-                        const val = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
-                        return `<input type="text" class="main-input a-name" placeholder="Angler" value="${val}" oninput="saveState()">`;
-                    }).join('')}
+                    ${[1,2,3,4].map(() => `<input type="text" class="a-name" placeholder="Angler" value="${savedNames[idx++] || ""}" oninput="saveSession()">`).join('')}
                 </div>`;
             container.appendChild(div);
         }
@@ -160,13 +160,9 @@
             iDiv.innerHTML = `<div class="team-header"><strong>Individuals</strong></div><div class="angler-grid" id="indivGrid"></div>`;
             container.appendChild(iDiv);
             const grid = iDiv.querySelector('#indivGrid');
-            for(let j=0; j<nIndivs; j++) {
-                const val = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
-                grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Name" value="${val}" oninput="saveState()">`;
-            }
+            for(let j=0; j<nIndivs; j++) grid.innerHTML += `<input type="text" class="i-name" placeholder="Name" value="${savedNames[idx++] || ""}" oninput="saveSession()">`;
         }
-        document.getElementById('drawBtn').style.display = 'block';
-        if(!isAutoLoad) saveState();
+        document.getElementById('mainControls').style.display = 'flex';
     }
 
     function runDraw() {
@@ -182,14 +178,11 @@
             }
         });
 
-        document.querySelectorAll('.i-name').forEach(input => {
-            if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual' });
-        });
+        document.querySelectorAll('.i-name').forEach(input => { if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual' }); });
+        const total = [].concat(...Object.values(teams), indivs);
+        if (total.length === 0) return alert("Enter names!");
 
-        const totalAnglers = [].concat(...Object.values(teams), indivs);
-        if (totalAnglers.length === 0) return alert("Please enter names!");
-
-        const cap = Math.ceil(totalAnglers.length / nZones);
+        const cap = Math.ceil(total.length / nZones);
         let u1 = new Set(), u2 = new Set();
 
         Object.keys(teams).forEach(t => {
@@ -208,6 +201,9 @@
         });
 
         render(teams, indivs);
+        document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('mainControls').style.display = 'none';
+        document.getElementById('postDrawControls').style.display = 'flex';
     }
 
     function getP(z, s, u) {
@@ -218,26 +214,28 @@
     }
 
     function render(teams, indivs) {
-        let html = `<button class="btn-init no-print" style="background:#f59e0b; color:white;" onclick="window.print()">Print Official Sheets</button>`;
         const makeTable = (data, title) => `
             <div class="res-block">
                 <h3 style="margin:0 0 8px 0;">${title}</h3>
                 <table>
                     <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
-                    <tbody>${data.map(a => `
-                        <tr>
-                            <td><strong>${a.name}</strong></td>
-                            <td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (Peg ${a.p1})</td>
-                            <td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (Peg ${a.p2})</td>
-                        </tr>`).join('')}
-                    </tbody>
+                    <tbody>${data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('')}</tbody>
                 </table>
             </div>`;
 
+        let html = `<h2>Competition Draw Results</h2>`;
         Object.keys(teams).forEach(t => html += makeTable(teams[t], "Team: " + t));
-        if(indivs.length) html += makeTable(indivs, "Individual Anglers");
+        if(indivs.length) html += makeTable(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
-        window.scrollTo(0, document.body.scrollHeight);
+        window.scrollTo(0, 0);
+    }
+
+    function closeResults() {
+        document.getElementById('resultsArea').innerHTML = '';
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('mainControls').style.display = 'flex';
+        document.getElementById('postDrawControls').style.display = 'none';
+        window.scrollTo(0, 0);
     }
 </script>
 </body>
