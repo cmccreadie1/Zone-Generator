@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fishing-comp-v7.5.0';
+const CACHE_NAME = 'match-pro-v8.0.1';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {
