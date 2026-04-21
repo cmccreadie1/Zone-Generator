@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.7</title>
+    <title>Match Pro v7.9.8</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -13,7 +13,6 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { max-width: 950px; margin: 0 auto; padding-bottom: 120px; }
         
-        /* Restored Detailed Fairness Popup */
         #fairnessOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .popup { background: var(--card); border: 2px solid var(--accent); border-radius: 12px; padding: 30px; max-width: 550px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .popup h2 { color: var(--accent); margin-top: 0; }
@@ -61,10 +60,9 @@
         <h2>Verification of Fairness</h2>
         <p>Match Pro uses an advanced cryptographic shuffle to ensure 100% unbiased results.</p>
         <ul>
-            <li><strong>Zone Isolation:</strong> Teammates are automatically distributed across different zones. No member of a team can fish the same zone as a teammate.</li>
-            <li><strong>Fair Variety:</strong> The "Mandatory Rotation" engine ensures every angler is assigned a completely different zone on Day 2.</li>
-            <li><strong>Fisher-Yates Algorithm:</strong> Pegs are assigned using a true random shuffle, eliminating human error or "sticky ticket" bias.</li>
-            <li><strong>Transparency:</strong> All assignments are audit-ready and grouped by team for easy verification on the board.</li>
+            <li><strong>Zone Isolation:</strong> Teammates are automatically distributed across different zones.</li>
+            <li><strong>Fair Variety:</strong> Mandatory Rotation ensures a different zone on Day 2.</li>
+            <li><strong>Fisher-Yates Algorithm:</strong> True random pegging removes all human bias.</li>
         </ul>
         <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">I Accept & Understand</button>
     </div>
@@ -72,8 +70,8 @@
 
 <div class="container">
     <header class="no-print">
-        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v7.9.7</small></h1>
-        <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:5px 10px; font-size:10px;" onclick="resetApp()">Reset All Data</button>
+        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v7.9.8</small></h1>
+        <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:5px 10px; font-size:10px;" onclick="resetApp(true)">Force Reset</button>
     </header>
 
     <div class="no-print" id="setupSection">
@@ -95,7 +93,7 @@
     </div>
 
     <div class="controls no-print" id="postDrawControls" style="display:none;">
-        <button class="btn-secondary" onclick="closeResults()">Back/Edit</button>
+        <button class="btn-secondary" onclick="handleBackAction()">Back/Clean</button>
         <button class="btn-draw" onclick="runDraw()">Re-Shuffle</button>
         <button class="btn-secondary" style="background:#f59e0b" onclick="window.print()">Print</button>
     </div>
@@ -103,19 +101,34 @@
 
 <script>
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
+    let isAtResults = false;
 
-    // 1. Browser Intercept (Are you sure you want to exit?)
-    window.addEventListener('beforeunload', (e) => {
-        const names = Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value).join('');
-        if (names.length > 0) {
-            e.preventDefault();
-            e.returnValue = ''; // Triggers the standard browser popup
+    // 1. Navigation & History Protection
+    window.addEventListener('popstate', function(event) {
+        if (isAtResults) {
+            handleBackAction();
         }
     });
 
+    window.addEventListener('beforeunload', (e) => {
+        const names = Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value).join('');
+        if (names.length > 0 && !isAtResults) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    function handleBackAction() {
+        if(confirm("Clear website for a clean slate? (Data will be wiped for the next match)")) {
+            resetApp(false);
+        } else {
+            closeResults();
+        }
+    }
+
     // 2. Iron-Clad Persistence
     window.onload = () => {
-        const saved = localStorage.getItem('matchpro_v797_save');
+        const saved = localStorage.getItem('matchpro_v798_save');
         if (saved) {
             const data = JSON.parse(saved);
             document.getElementById('numZones').value = data.z;
@@ -123,6 +136,8 @@
             document.getElementById('numIndivs').value = data.i;
             initGrid(true);
         }
+        // Push initial state to history
+        history.pushState({page: 'entry'}, 'Match Pro', '');
     };
 
     function saveState() {
@@ -132,15 +147,13 @@
             i: document.getElementById('numIndivs').value,
             names: Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value)
         };
-        localStorage.setItem('matchpro_v797_save', JSON.stringify(data));
+        localStorage.setItem('matchpro_v798_save', JSON.stringify(data));
     }
 
-    function resetApp() {
-        if(confirm("DANGER: This will wipe all names.")) {
-            if(confirm("FINAL CHECK: Are you 100% sure you want to clear the entry sheet?")) {
-                localStorage.removeItem('matchpro_v797_save');
-                location.reload();
-            }
+    function resetApp(force) {
+        if(force || confirm("Are you sure you want to clear all competition data?")) {
+            localStorage.removeItem('matchpro_v798_save');
+            location.reload();
         }
     }
 
@@ -149,7 +162,7 @@
         const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
         const container = document.getElementById('entryContainer');
         
-        let savedNames = isAuto ? JSON.parse(localStorage.getItem('matchpro_v797_save')).names : [];
+        let savedNames = isAuto ? JSON.parse(localStorage.getItem('matchpro_v798_save')).names : [];
         container.innerHTML = ''; 
         let idx = 0;
 
@@ -212,6 +225,8 @@
         });
 
         render(teams, indivs);
+        isAtResults = true;
+        history.pushState({page: 'results'}, 'Results', '');
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('mainControls').style.display = 'none';
         document.getElementById('postDrawControls').style.display = 'flex';
@@ -241,6 +256,7 @@
     }
 
     function closeResults() {
+        isAtResults = false;
         document.getElementById('resultsArea').innerHTML = '';
         document.getElementById('setupSection').style.display = 'block';
         document.getElementById('mainControls').style.display = 'flex';
@@ -250,3 +266,4 @@
 </script>
 </body>
 </html>
+
