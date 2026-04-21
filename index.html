@@ -3,68 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v7.9.4</title>
+    <title>Match Pro v7.9.5</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
             --accent: #38bdf8; --success: #10b981; --border: #334155;
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 950px; margin: 0 auto; padding-bottom: 120px; }
         
-        header { border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; }
-        .setup-bar { display: flex; gap: 15px; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 25px; align-items: flex-end; border: 1px solid var(--border); }
-        .input-group label { display: block; font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
-        input[type="number"], .main-input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); background: #1e293b; }
+        /* Fairness Popup */
+        #fairnessOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .popup { background: var(--card); border: 2px solid var(--accent); border-radius: 12px; padding: 25px; max-width: 500px; position: relative; }
+        .popup h2 { color: var(--accent); margin-top: 0; }
+        .popup ul { padding-left: 20px; font-size: 0.9rem; line-height: 1.6; }
+        .close-btn { background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 15px; cursor: pointer; }
 
-        /* Team Entry Blocks (Always Visible) */
-        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); padding: 15px; }
-        .team-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .team-num { background: var(--accent); color: var(--bg); padding: 2px 10px; border-radius: 4px; font-weight: bold; }
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+        input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; outline: none; font-size: 16px; }
+        input:focus { border-color: var(--accent); }
+
+        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; }
+        .team-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .team-num { background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
-        .btn-init { background: var(--accent); color: var(--bg); padding: 10px 20px; }
-        .btn-draw { background: var(--success); color: white; padding: 18px; width: 100%; font-size: 1.2rem; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); max-width: 950px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 100; }
-        .btn-print { background: #f59e0b; color: white; padding: 12px 24px; margin-bottom: 20px; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
+        .btn-init { background: var(--accent); color: var(--bg); padding: 12px; width: 100%; margin-top: 10px; }
+        .btn-draw { background: var(--success); color: white; padding: 20px; width: calc(100% - 30px); font-size: 1.2rem; position: fixed; bottom: 15px; left: 15px; z-index: 100; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .btn-clear { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.7rem; margin-top: 10px; opacity: 0.6; }
 
-        /* Result Colors */
-        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 20px; padding: 15px; }
-        table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        td, th { padding: 8px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1); }
         .row-red { background-color: var(--row-red) !important; }
         .row-yellow { background-color: var(--row-yellow) !important; }
         .row-green { background-color: var(--row-green) !important; }
         .row-blue { background-color: var(--row-blue) !important; }
 
         @media print {
-            .no-print { display: none !important; }
-            body { background: white; color: black; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print, #fairnessOverlay { display: none !important; }
+            body { background: white; color: black; padding: 0; }
             .res-block { page-break-inside: avoid; border: 1px solid #ddd; }
         }
     </style>
 </head>
 <body>
 
+<div id="fairnessOverlay">
+    <div class="popup">
+        <h2>Verification of Fairness</h2>
+        <p>This generator uses a cryptographically secure shuffle to ensure a 100% unbiased draw.</p>
+        <ul>
+            <li><strong>Zone Isolation:</strong> Teammates are automatically distributed across different zones. They can never fish the same zone.</li>
+            <li><strong>Fair Rotation:</strong> Anglers are guaranteed a different zone on Day 2.</li>
+            <li><strong>Random Pegging:</strong> Pegs are assigned via the Fisher-Yates algorithm, removing any "sticky ticket" bias.</li>
+        </ul>
+        <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">I Understand & Accept</button>
+    </div>
+</div>
+
 <div class="container">
     <header class="no-print">
-        <h1>MATCH PRO <small style="font-size: 0.8rem; color: var(--accent);">v7.9.4</small></h1>
+        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v7.9.5</small></h1>
+        <button class="btn-clear no-print" onclick="clearAllData()">Reset All</button>
     </header>
 
     <div class="no-print">
         <div class="setup-bar">
-            <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
-            <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24"></div>
-            <div class="input-group"><label>Individuals</label><input type="number" id="numIndivs" value="2"></div>
-            <button class="btn-init" onclick="initGrid()">Initialize Grid</button>
+            <div class="setup-grid">
+                <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4" onchange="saveState()"></div>
+                <div class="input-group"><label>Teams</label><input type="number" id="numTeams" value="24" onchange="saveState()"></div>
+                <div class="input-group"><label>Indivs</label><input type="number" id="numIndivs" value="2" onchange="saveState()"></div>
+            </div>
+            <button class="btn-init" onclick="initGrid()">Apply Setup & Load Data</button>
         </div>
 
-        <div id="entryContainer">
-            </div>
-        
+        <div id="entryContainer"></div>
         <button id="drawBtn" class="btn-draw" style="display:none" onclick="runDraw()">Process Competition Draw</button>
     </div>
 
@@ -74,47 +93,80 @@
 <script>
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
 
-    function initGrid() {
+    // Auto-load on startup
+    window.onload = () => {
+        const saved = localStorage.getItem('matchpro_autosave');
+        if (saved) {
+            const data = JSON.parse(saved);
+            document.getElementById('numZones').value = data.z;
+            document.getElementById('numTeams').value = data.t;
+            document.getElementById('numIndivs').value = data.i;
+            initGrid(true); 
+        }
+    };
+
+    function saveState() {
+        const data = {
+            z: document.getElementById('numZones').value,
+            t: document.getElementById('numTeams').value,
+            i: document.getElementById('numIndivs').value,
+            names: Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value)
+        };
+        localStorage.setItem('matchpro_autosave', JSON.stringify(data));
+    }
+
+    function clearAllData() {
+        if(confirm("Wipe all names and setup?")) {
+            localStorage.removeItem('matchpro_autosave');
+            location.reload();
+        }
+    }
+
+    function initGrid(isAutoLoad = false) {
         const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
         const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
         const container = document.getElementById('entryContainer');
-        container.innerHTML = ''; 
+        
+        let savedNames = [];
+        if (isAutoLoad) {
+            const data = JSON.parse(localStorage.getItem('matchpro_autosave'));
+            savedNames = data.names || [];
+        }
 
-        // Create Team Blocks
+        container.innerHTML = ''; 
+        let nameCounter = 0;
+
         for (let i = 1; i <= nTeams; i++) {
             const div = document.createElement('div');
             div.className = 'team-block';
+            const tNameVal = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
             div.innerHTML = `
                 <div class="team-header">
                     <span class="team-num">${i}</span>
-                    <input type="text" class="main-input t-name" placeholder="Enter Team Name">
+                    <input type="text" class="main-input t-name" placeholder="Team Name" value="${tNameVal}" oninput="saveState()">
                 </div>
                 <div class="angler-grid">
-                    <input type="text" class="main-input a-name" placeholder="Angler 1">
-                    <input type="text" class="main-input a-name" placeholder="Angler 2">
-                    <input type="text" class="main-input a-name" placeholder="Angler 3">
-                    <input type="text" class="main-input a-name" placeholder="Angler 4">
-                </div>
-            `;
+                    ${[1,2,3,4].map(() => {
+                        const val = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
+                        return `<input type="text" class="main-input a-name" placeholder="Angler" value="${val}" oninput="saveState()">`;
+                    }).join('')}
+                </div>`;
             container.appendChild(div);
         }
 
-        // Create Individual Block
         if(nIndivs > 0) {
             const iDiv = document.createElement('div');
             iDiv.className = 'team-block';
-            iDiv.innerHTML = `
-                <div class="team-header"><strong>Individual Anglers</strong></div>
-                <div class="angler-grid" id="indivGrid"></div>
-            `;
+            iDiv.innerHTML = `<div class="team-header"><strong>Individuals</strong></div><div class="angler-grid" id="indivGrid"></div>`;
             container.appendChild(iDiv);
             const grid = iDiv.querySelector('#indivGrid');
             for(let j=0; j<nIndivs; j++) {
-                grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Angler Name">`;
+                const val = isAutoLoad ? (savedNames[nameCounter++] || "") : "";
+                grid.innerHTML += `<input type="text" class="main-input i-name" placeholder="Name" value="${val}" oninput="saveState()">`;
             }
         }
-
         document.getElementById('drawBtn').style.display = 'block';
+        if(!isAutoLoad) saveState();
     }
 
     function runDraw() {
@@ -135,7 +187,7 @@
         });
 
         const totalAnglers = [].concat(...Object.values(teams), indivs);
-        if (totalAnglers.length === 0) return alert("Please enter at least one angler name.");
+        if (totalAnglers.length === 0) return alert("Please enter names!");
 
         const cap = Math.ceil(totalAnglers.length / nZones);
         let u1 = new Set(), u2 = new Set();
@@ -166,17 +218,17 @@
     }
 
     function render(teams, indivs) {
-        let html = `<button class="btn-print no-print" onclick="window.print()">Print Hard Copy</button>`;
+        let html = `<button class="btn-init no-print" style="background:#f59e0b; color:white;" onclick="window.print()">Print Official Sheets</button>`;
         const makeTable = (data, title) => `
             <div class="res-block">
-                <h3 style="margin:0 0 10px 0;">${title}</h3>
+                <h3 style="margin:0 0 8px 0;">${title}</h3>
                 <table>
                     <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
                     <tbody>${data.map(a => `
                         <tr>
                             <td><strong>${a.name}</strong></td>
-                            <td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} - Peg ${a.p1}</td>
-                            <td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} - Peg ${a.p2}</td>
+                            <td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (Peg ${a.p1})</td>
+                            <td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (Peg ${a.p2})</td>
                         </tr>`).join('')}
                     </tbody>
                 </table>
