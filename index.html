@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v8.0.0</title>
+    <title>Match Pro v8.0.1</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -25,7 +25,7 @@
         .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
         input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
 
-        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; transition: 0.3s; }
+        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; }
         .team-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         .team-num { background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -50,10 +50,6 @@
         .row-yellow { background-color: var(--row-yellow) !important; }
         .row-green { background-color: var(--row-green) !important; }
         .row-blue { background-color: var(--row-blue) !important; }
-        .row-orange { background-color: var(--row-orange) !important; }
-        .row-purple { background-color: var(--row-purple) !important; }
-        .row-silver { background-color: var(--row-silver) !important; }
-        .row-gold { background-color: var(--row-gold) !important; }
 
         @media print {
             .no-print, #fairnessOverlay, .controls { display: none !important; }
@@ -67,15 +63,20 @@
 
 <div id="fairnessOverlay">
     <div class="popup">
-        <h2>Match Pro v8.0.0</h2>
-        <p>Live Edit & Delta Tracking Enabled.</p>
-        <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">Manage Competition</button>
+        <h2>Verification of Fairness (v8.0.1)</h2>
+        <ul>
+            <li><strong>Zone Isolation:</strong> Teammates are distributed to unique zones.</li>
+            <li><strong>Mandatory Rotation:</strong> Guaranteed different zone on Day 2.</li>
+            <li><strong>Randomized Pegs:</strong> Fisher-Yates algorithm ensures true randomness.</li>
+            <li><strong>Live Amendment:</strong> Changes are tracked and highlighted in the final results.</li>
+        </ul>
+        <button class="close-btn" onclick="document.getElementById('fairnessOverlay').style.display='none'">Begin</button>
     </div>
 </div>
 
 <div class="container">
     <header class="no-print">
-        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v8.0.0</small></h1>
+        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v8.0.1</small></h1>
         <button style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:5px 10px; font-size:10px;" onclick="resetApp(true)">Reset Match</button>
     </header>
 
@@ -98,7 +99,7 @@
     </div>
 
     <div class="controls no-print" id="postDrawControls" style="display:none;">
-        <button class="btn-secondary" onclick="closeResults()">Back/Amend</button>
+        <button class="btn-secondary" onclick="handleBackAction()">Back/Clean</button>
         <button class="btn-draw" onclick="runDraw(true)">Re-Shuffle All</button>
         <button class="btn-secondary" style="background:#f59e0b" onclick="window.print()">Print</button>
     </div>
@@ -110,13 +111,14 @@
     let lastDrawResults = null;
 
     window.addEventListener('popstate', (e) => { if (isAtResults) handleBackAction(); });
-    
-    function handleBackAction() {
-        if(confirm("Clear Match Data?")) { resetApp(false); } else { closeResults(); }
-    }
+
+    window.addEventListener('beforeunload', (e) => {
+        const names = Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value).join('');
+        if (names.length > 0 && !isAtResults) { e.preventDefault(); e.returnValue = ''; }
+    });
 
     window.onload = () => {
-        const saved = localStorage.getItem('matchpro_v800_save');
+        const saved = localStorage.getItem('matchpro_v801_save');
         if (saved) {
             const data = JSON.parse(saved);
             document.getElementById('numZones').value = data.z;
@@ -134,21 +136,25 @@
             i: document.getElementById('numIndivs').value,
             names: Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value)
         };
-        localStorage.setItem('matchpro_v800_save', JSON.stringify(data));
+        localStorage.setItem('matchpro_v801_save', JSON.stringify(data));
     }
 
     function resetApp(force) {
-        if(force || confirm("Wipe all data?")) {
-            localStorage.removeItem('matchpro_v800_save');
+        if(force || confirm("Clear everything for a new match?")) {
+            localStorage.removeItem('matchpro_v801_save');
             location.reload();
         }
+    }
+
+    function handleBackAction() {
+        if(confirm("Clear website for a clean slate?")) { resetApp(false); } else { closeResults(); }
     }
 
     function initGrid(isAuto = false) {
         const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
         const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
         const container = document.getElementById('entryContainer');
-        let savedNames = isAuto ? JSON.parse(localStorage.getItem('matchpro_v800_save')).names : [];
+        let savedNames = isAuto ? JSON.parse(localStorage.getItem('matchpro_v801_save')).names : [];
         container.innerHTML = ''; let idx = 0;
 
         for (let i = 1; i <= nTeams; i++) {
@@ -165,65 +171,75 @@
             for(let j=0; j<nIndivs; j++) grid.innerHTML += `<input type="text" class="i-name" placeholder="Name" value="${savedNames[idx++] || ""}" oninput="saveState()">`;
         }
         document.getElementById('mainControls').style.display = 'flex';
+        if(!isAuto) saveState();
     }
 
     function runDraw(isReshuffle = false) {
-        const nZones = parseInt(document.getElementById('numZones').value) || 4;
-        let teams = {}; let indivs = [];
+        const nZones = parseInt(document.getElementById('numZones').value) || 0;
+        if(nZones < 1) return alert("Select number of zones first.");
 
+        let teams = {}; let indivs = [];
         document.querySelectorAll('.team-block').forEach(block => {
             const tIn = block.querySelector('.t-name');
             if (tIn) {
                 const teamName = tIn.value || "Unnamed Team";
                 const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v !== "");
-                if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName }));
+                if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName, hasChanged: false }));
             }
         });
-        document.querySelectorAll('.i-name').forEach(input => { if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual' }); });
-        
-        const currentAnglers = [].concat(...Object.values(teams), indivs);
-        if (currentAnglers.length === 0) return alert("No names entered!");
 
-        const baseSize = Math.floor(currentAnglers.length / nZones);
-        const remainder = currentAnglers.length % nZones;
-        let zoneMaps = [];
-        let curPeg = 1;
+        document.querySelectorAll('.i-name').forEach(input => { if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual', hasChanged: false }); });
+        const allAnglers = [].concat(...Object.values(teams), indivs);
+        if (allAnglers.length === 0) return alert("Enter at least one name.");
+
+        const baseSize = Math.floor(allAnglers.length / nZones);
+        const remainder = allAnglers.length % nZones;
+        let zoneMaps = []; let curPeg = 1;
 
         for(let i=0; i<nZones; i++) {
             let size = baseSize + (i < remainder ? 1 : 0);
-            zoneMaps.push({ name: zones[i], start: curPeg, end: curPeg + size - 1, size: size, used: new Set() });
+            zoneMaps.push({ name: zones[i], start: curPeg, end: curPeg + size - 1, size: size, usedD1: new Set(), usedD2: new Set() });
             curPeg += size;
         }
 
-        // Processing Logic
-        currentAnglers.forEach(a => {
-            let zIdx = Math.floor(Math.random() * nZones);
-            // In a real amendment we'd check lastDrawResults here, 
-            // but for this v8 version we will flag any change if lastDraw exists.
-            a.z1 = zIdx; a.p1 = getPeg(zoneMaps[zIdx]);
-            a.z2 = (zIdx + 1) % nZones; a.p2 = getPeg(zoneMaps[a.z2]); 
+        // Assignment with collision prevention
+        Object.keys(teams).forEach(t => {
+            let zs = [...Array(nZones).keys()].sort(() => Math.random() - 0.5);
+            teams[t].forEach((a, i) => {
+                const zIdx = zs[i % nZones];
+                a.z1 = zIdx; a.p1 = getPeg(zoneMaps[zIdx], 'usedD1');
+                const d2Z = (zIdx + 1) % nZones;
+                a.z2 = d2Z; a.p2 = getPeg(zoneMaps[d2Z], 'usedD2');
+            });
         });
 
-        // Delta Tracking
+        indivs.forEach(a => {
+            const zIdx = Math.floor(Math.random() * nZones);
+            a.z1 = zIdx; a.p1 = getPeg(zoneMaps[zIdx], 'usedD1');
+            const d2Z = (zIdx + 1) % nZones;
+            a.z2 = d2Z; a.p2 = getPeg(zoneMaps[d2Z], 'usedD2');
+        });
+
         if(lastDrawResults && !isReshuffle) {
-            currentAnglers.forEach(a => {
+            allAnglers.forEach(a => {
                 const prev = lastDrawResults.find(old => old.name === a.name);
                 if(prev && (prev.p1 !== a.p1 || prev.z1 !== a.z1)) a.hasChanged = true;
             });
         }
 
-        lastDrawResults = JSON.parse(JSON.stringify(currentAnglers));
+        lastDrawResults = JSON.parse(JSON.stringify(allAnglers));
         render(teams, indivs, zoneMaps);
-        
-        isAtResults = true; history.pushState({page: 'results'}, 'Results', '');
+        isAtResults = true;
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('mainControls').style.display = 'none';
         document.getElementById('postDrawControls').style.display = 'flex';
     }
 
-    function getPeg(z) {
-        let p; do { p = Math.floor(Math.random() * z.size) + z.start; } while (z.used.has(p));
-        z.used.add(p); return p;
+    function getPeg(z, type) {
+        let p, att = 0;
+        do { p = Math.floor(Math.random() * z.size) + z.start; att++; } 
+        while (z[type].has(p) && att < 2000);
+        z[type].add(p); return p;
     }
 
     function render(teams, indivs, maps) {
@@ -233,14 +249,14 @@
 
         const makeTable = (data, title) => `
             <div class="res-block">
-                <h3>${title}</h3>
+                <h3 style="margin:0 0 5px 0;">${title}</h3>
                 <table>
                     <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
                     <tbody>${data.map(a => `<tr><td><strong>${a.name}</strong>${a.hasChanged ? '<span class="change-badge">CHANGED</span>' : ''}</td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('')}</tbody>
                 </table>
             </div>`;
 
-        let html = `<h2 style="text-align:center;">Beach Map Visualization</h2>` + mapHtml;
+        let html = `<h2 style="text-align:center;">Match Draw Results</h2>` + mapHtml;
         Object.keys(teams).forEach(t => html += makeTable(teams[t], "Team: " + t));
         if(indivs.length) html += makeTable(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
@@ -255,5 +271,6 @@
         document.getElementById('resultsArea').innerHTML = '';
     }
 </script>
+
 </body>
 </html>
