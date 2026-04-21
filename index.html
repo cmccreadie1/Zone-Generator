@@ -3,72 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Pro v8.1.0</title>
+    <title>Match Pro v8.2.0</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
             --accent: #38bdf8; --success: #10b981; --border: #334155;
-            --warning: #f59e0b;
+            --warning: #f59e0b; --danger: #ef4444;
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 950px; margin: 0 auto; padding-bottom: 120px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; user-select: none; }
+        .container { max-width: 950px; margin: 0 auto; padding-bottom: 140px; }
         
-        /* Layout Elements */
-        header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .team-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; }
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
+        
+        /* The Builder UI */
+        .builder-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn-add { padding: 15px; border-radius: 8px; font-weight: bold; border: 2px dashed var(--border); background: transparent; color: var(--text); cursor: pointer; }
+        .btn-add:active { background: var(--border); }
+
+        .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; position: relative; }
+        .block-type-tag { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-right: 10px; text-transform: uppercase; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; color: var(--danger); background: transparent; border: none; font-size: 1.2rem; cursor: pointer; }
+
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--accent); }
 
-        /* Navigation Buttons */
-        .controls { position: fixed; bottom: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 100; }
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.2s; }
-        .btn-main { background: var(--success); color: white; padding: 20px; flex: 2; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        .btn-edit { background: var(--warning); color: white; padding: 10px 20px; margin-bottom: 15px; width: 100%; display: block; }
-        .btn-reset { background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 5px 10px; font-size: 10px; }
-
-        /* Result Styles */
+        /* Results & Map */
+        .beach-map { background: #e2e8f0; color: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 5px; flex-wrap: wrap; }
+        .beach-zone { flex: 1; min-width: 100px; padding: 10px; border-radius: 4px; text-align: center; border: 1px solid rgba(0,0,0,0.1); }
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
         .change-tag { background: var(--warning); color: white; font-size: 9px; padding: 2px 5px; border-radius: 3px; margin-left: 8px; }
+        
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
-        
-        .row-red { background-color: var(--row-red) !important; }
-        .row-yellow { background-color: var(--row-yellow) !important; }
-        .row-green { background-color: var(--row-green) !important; }
-        .row-blue { background-color: var(--row-blue) !important; }
 
-        @media print { .no-print, .controls, .btn-edit { display: none !important; } }
+        /* Footer Controls */
+        .footer { position: fixed; bottom: 15px; left: 15px; right: 15px; z-index: 100; display: flex; gap: 10px; }
+        .btn-draw { background: var(--success); color: white; padding: 20px; flex: 2; font-size: 1.2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .btn-amend { background: var(--warning); color: white; padding: 12px; width: 100%; margin-bottom: 10px; }
+
+        @media print { .no-print, .footer, .builder-controls, .btn-amend, .remove-btn { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header class="no-print">
-        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v8.1.0</small></h1>
-        <button class="btn-reset" onclick="resetApp()">Full Reset</button>
+        <h1>MATCH PRO <small style="font-size: 0.7rem; color: var(--accent);">v8.2.0</small></h1>
+        <button style="color:var(--danger); background:transparent; border:none; font-size:12px;" onclick="fullReset()">Reset All</button>
     </header>
 
-    <div class="no-print" id="entrySection">
+    <div id="entrySection" class="no-print">
         <div class="setup-bar">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div><label style="font-size: 9px; color: var(--accent);">ZONES</label><input type="number" id="numZones" value="4"></div>
-                <div><label style="font-size: 9px; color: var(--accent);">TEAMS</label><input type="number" id="numTeams" value="24"></div>
-                <div><label style="font-size: 9px; color: var(--accent);">INDIVS</label><input type="number" id="numIndivs" value="2"></div>
+            <div style="flex:1">
+                <label style="font-size: 10px; color: var(--accent); display: block;">NUMBER OF ZONES</label>
+                <input type="number" id="numZones" value="4" style="padding: 8px;">
             </div>
-            <button style="background: var(--accent); color: var(--bg); width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px;" onclick="initGrid()">Update Grid Layout</button>
+            <div style="font-size: 11px; text-align: right;">
+                Anglers: <span id="countDisplay">0</span>
+            </div>
         </div>
-        <div id="entryContainer"></div>
+
+        <div class="builder-controls">
+            <button class="btn-add" onclick="addEntry('team')">+ ADD FULL TEAM</button>
+            <button class="btn-add" onclick="addEntry('indiv')">+ ADD INDIVIDUAL</button>
+        </div>
+
+        <div id="entryList"></div>
     </div>
 
     <div id="resultsSection" style="display: none;">
-        <button class="btn-edit no-print" onclick="showEntry()">← AMEND ENTRY LIST (Add/Swap Anglers)</button>
+        <button class="btn-amend no-print" onclick="showEntry()">← AMEND ENTRIES / ADD MORE</button>
         <div id="resultsArea"></div>
     </div>
 
-    <div class="controls no-print" id="footerControls">
-        <button class="btn-main" id="drawBtn" onclick="runDraw()">PROCESS MATCH DRAW</button>
+    <div class="footer no-print" id="footerUI" style="display: none;">
+        <button class="btn-draw" onclick="runDraw()">PROCESS COMPETITION DRAW</button>
     </div>
 </div>
 
@@ -76,145 +88,158 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lastResult = null;
 
+    // Load from Session (Refresh Protection)
     window.onload = () => {
-        const saved = localStorage.getItem('matchpro_v810_save');
+        const saved = localStorage.getItem('matchpro_v820_save');
         if (saved) {
             const data = JSON.parse(saved);
             document.getElementById('numZones').value = data.z;
-            document.getElementById('numTeams').value = data.t;
-            document.getElementById('numIndivs').value = data.i;
-            initGrid(true);
+            data.blocks.forEach(b => addEntry(b.type, b.names, b.tName));
+            updateCount();
         }
     };
 
     function saveState() {
-        const data = {
-            z: document.getElementById('numZones').value,
-            t: document.getElementById('numTeams').value,
-            i: document.getElementById('numIndivs').value,
-            names: Array.from(document.querySelectorAll('.a-name, .t-name, .i-name')).map(el => el.value)
-        };
-        localStorage.setItem('matchpro_v810_save', JSON.stringify(data));
+        const blocks = [];
+        document.querySelectorAll('.entry-block').forEach(el => {
+            const type = el.dataset.type;
+            const tName = el.querySelector('.t-name')?.value || "";
+            const names = Array.from(el.querySelectorAll('.a-name')).map(i => i.value);
+            blocks.push({ type, tName, names });
+        });
+        const data = { z: document.getElementById('numZones').value, blocks };
+        localStorage.setItem('matchpro_v820_save', JSON.stringify(data));
+        updateCount();
     }
 
-    function initGrid(isAuto = false) {
-        const nTeams = parseInt(document.getElementById('numTeams').value) || 0;
-        const nIndivs = parseInt(document.getElementById('numIndivs').value) || 0;
-        const container = document.getElementById('entryContainer');
-        let savedNames = isAuto ? JSON.parse(localStorage.getItem('matchpro_v810_save')).names : [];
-        container.innerHTML = ''; let idx = 0;
-
-        for (let i = 1; i <= nTeams; i++) {
-            const div = document.createElement('div'); div.className = 'team-block';
-            div.innerHTML = `<div style="display:flex; gap:10px; margin-bottom:10px;">
-                <span style="background:var(--accent); color:var(--bg); padding:2px 8px; border-radius:4px; font-weight:bold;">${i}</span>
-                <input type="text" class="t-name" placeholder="Team Name" value="${savedNames[idx++] || ""}" oninput="saveState()">
+    function addEntry(type, names = [], tName = "") {
+        const container = document.getElementById('entryList');
+        const div = document.createElement('div');
+        div.className = 'entry-block';
+        div.dataset.type = type;
+        
+        const remove = `<button class="remove-btn" onclick="this.parentElement.remove(); saveState();">×</button>`;
+        
+        if (type === 'team') {
+            div.innerHTML = `${remove}
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="block-type-tag" style="background:var(--accent); color:var(--bg)">TEAM</span>
+                    <input type="text" class="t-name" placeholder="Team Name" value="${tName}" oninput="saveState()">
                 </div>
-                <div class="angler-grid">${[1,2,3,4].map(() => `<input type="text" class="a-name" placeholder="Angler" value="${savedNames[idx++] || ""}" oninput="saveState()">`).join('')}</div>`;
-            container.appendChild(div);
+                <div class="angler-grid">
+                    ${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler ${i+1}" value="${names[i] || ""}" oninput="saveState()">`).join('')}
+                </div>`;
+        } else {
+            div.innerHTML = `${remove}
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="block-type-tag" style="background:var(--success); color:white">INDIV</span>
+                    <input type="text" class="a-name" placeholder="Angler Name" value="${names[0] || ""}" oninput="saveState()">
+                    <button style="font-size:10px; background:var(--border); color:white; border-radius:4px; border:none; padding:5px;" onclick="convertToTeam(this.parentElement.parentElement)">Make Team</button>
+                </div>`;
         }
-        if(nIndivs > 0) {
-            const iDiv = document.createElement('div'); iDiv.className = 'team-block';
-            iDiv.innerHTML = `<div style="margin-bottom:10px; font-weight:bold;">Individuals</div><div class="angler-grid" id="indivGrid"></div>`;
-            container.appendChild(iDiv);
-            const grid = iDiv.querySelector('#indivGrid');
-            for(let j=0; j<nIndivs; j++) grid.innerHTML += `<input type="text" class="i-name" placeholder="Name" value="${savedNames[idx++] || ""}" oninput="saveState()">`;
-        }
+        container.appendChild(div);
+        document.getElementById('footerUI').style.display = 'flex';
         saveState();
+    }
+
+    function convertToTeam(el) {
+        const name = el.querySelector('.a-name').value;
+        el.dataset.type = 'team';
+        el.innerHTML = el.innerHTML.replace('INDIV', 'TEAM'); // Simplified UI swap
+        addEntry('team', [name]); // Easier to just replace
+        el.remove();
+    }
+
+    function updateCount() {
+        let count = 0;
+        document.querySelectorAll('.a-name').forEach(i => { if(i.value.trim()) count++; });
+        document.getElementById('countDisplay').innerText = count;
     }
 
     function runDraw() {
         const nZones = parseInt(document.getElementById('numZones').value) || 1;
+        let finalAnglers = [];
         let teams = {}; let indivs = [];
 
-        document.querySelectorAll('.team-block').forEach(block => {
-            const tIn = block.querySelector('.t-name');
-            if (tIn && tIn.value.trim()) {
-                const teamName = tIn.value.trim();
-                const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v !== "");
-                if (names.length) teams[teamName] = names.map(n => ({ name: n, team: teamName, hasChanged: false }));
+        document.querySelectorAll('.entry-block').forEach(block => {
+            if(block.dataset.type === 'team') {
+                const tName = block.querySelector('.t-name').value || "Unnamed Team";
+                const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(v => v);
+                if(names.length) teams[tName] = names.map(n => ({ name: n, team: tName }));
+            } else {
+                const name = block.querySelector('.a-name').value.trim();
+                if(name) indivs.push({ name, team: 'Individual' });
             }
         });
 
-        document.querySelectorAll('.i-name').forEach(input => {
-            if (input.value.trim()) indivs.push({ name: input.value.trim(), team: 'Individual', hasChanged: false });
-        });
-
         const all = [].concat(...Object.values(teams), indivs);
-        if (all.length === 0) return alert("Please enter angler names.");
+        if(!all.length) return alert("Add some names first!");
 
-        // Draw Math
-        const cap = Math.ceil(all.length / nZones);
-        let u1 = new Set(), u2 = new Set();
+        // Calculation
+        const total = all.length;
+        const base = Math.floor(total / nZones);
+        const rem = total % nZones;
+        let map = []; let cur = 1;
+        for(let i=0; i<nZones; i++) {
+            let s = base + (i < rem ? 1 : 0);
+            map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, u1: new Set(), u2: new Set() });
+            cur += s;
+        }
 
         Object.keys(teams).forEach(t => {
             let zs = [...Array(nZones).keys()].sort(() => Math.random() - 0.5);
             teams[t].forEach((a, i) => {
                 const z = zs[i % nZones];
-                a.z1 = z; a.p1 = getP(z, cap, u1);
-                a.z2 = (z + 1) % nZones; a.p2 = getP(a.z2, cap, u2);
+                a.z1 = z; a.p1 = getPeg(map[z], 'u1');
+                const z2 = (z + 1) % nZones;
+                a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
             });
         });
 
         indivs.forEach(a => {
             const z = Math.floor(Math.random() * nZones);
-            a.z1 = z; a.p1 = getP(z, cap, u1);
-            a.z2 = (z + 1) % nZones; a.p2 = getP(a.z2, cap, u2);
+            a.z1 = z; a.p1 = getPeg(map[z], 'u1');
+            const z2 = (z + 1) % nZones;
+            a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
         });
 
-        // Track Changes
         if(lastResult) {
             all.forEach(a => {
                 const old = lastResult.find(o => o.name === a.name);
-                if(old && (old.p1 !== a.p1)) a.hasChanged = true;
+                if(old && old.p1 !== a.p1) a.isNew = true;
             });
         }
         lastResult = JSON.parse(JSON.stringify(all));
 
-        renderResults(teams, indivs);
+        renderResults(teams, indivs, map);
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
-        document.getElementById('drawBtn').innerText = "RE-CALCULATE DRAW";
         window.scrollTo(0,0);
     }
 
-    function getP(z, s, u) {
-        let p, att = 0;
-        do { p = (z * s) + Math.floor(Math.random() * s) + 1; att++; } while (u.has(p) && att < 1000);
-        u.add(p); return p;
+    function getPeg(z, key) {
+        let p; do { p = Math.floor(Math.random() * z.size) + z.start; } while (z[key].has(p));
+        z[key].add(p); return p;
     }
 
-    function renderResults(teams, indivs) {
-        let html = `<h2>Match Results</h2>`;
-        const build = (data, title) => `
-            <div class="res-block">
-                <h3 style="margin:0 0 10px 0;">${title}</h3>
-                <table>
-                    <thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead>
-                    <tbody>${data.map(a => `<tr>
-                        <td><strong>${a.name}</strong>${a.hasChanged ? '<span class="change-tag">CHANGED</span>' : ''}</td>
-                        <td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td>
-                        <td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td>
-                    </tr>`).join('')}</tbody>
-                </table>
-            </div>`;
+    function renderResults(teams, indivs, map) {
+        let mapHtml = `<div class="beach-map">` + map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><small>${m.name}</small><br><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
+        const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td><strong>${a.name}</strong>${a.isNew ? '<span class="change-tag">NEW/CHANGED</span>' : ''}</td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
 
-        Object.keys(teams).forEach(t => html += build(teams[t], "Team: " + t));
-        if(indivs.length) html += build(indivs, "Individuals");
+        let html = `<h2 style="text-align:center;">Match Draw Results</h2>` + mapHtml;
+        Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
+        if(indivs.length) html += tbl(indivs, "Individual Anglers");
         document.getElementById('resultsArea').innerHTML = html;
     }
 
     function showEntry() {
         document.getElementById('entrySection').style.display = 'block';
         document.getElementById('resultsSection').style.display = 'none';
-        document.getElementById('drawBtn').innerText = "UPDATE DRAW WITH CHANGES";
     }
 
-    function resetApp() {
-        if(confirm("DANGER: WIPE ALL DATA?")) {
-            localStorage.removeItem('matchpro_v810_save');
-            location.reload();
-        }
+    function fullReset() {
+        if(confirm("Wipe everything?")) { localStorage.removeItem('matchpro_v820_save'); location.reload(); }
     }
 </script>
 </body>
