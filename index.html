@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.0.2</title>
+    <title>Zone Generator v9.0.3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,10 +19,30 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: #1e293b; border-bottom: 2px solid var(--accent); padding: 12px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        
-        #entrySection { padding-top: 180px; }
+        /* ENLARGED Fixed Header */
+        .fixed-header { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
+            background: #1e293b; border-bottom: 3px solid var(--accent);
+            padding: 16px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+        }
+        .header-title { margin:0; font-size: 1.5rem; color:var(--accent); letter-spacing: 1px; font-weight: 900; }
+        .btn-history-large { background:var(--accent); color:var(--bg); padding:10px 20px; border-radius:8px; font-size:14px; font-weight: bold; }
+
+        /* Adjusted Spacing for Content */
+        #entrySection { padding-top: 200px; }
         #resultsSection { padding-top: 100px; }
+
+        /* Info Graphic Style */
+        .infographic { 
+            background: rgba(56, 189, 248, 0.1); 
+            border: 1px solid var(--accent); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 25px; 
+        }
+        .info-title { color: var(--accent); font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+        .info-step { font-size: 13px; line-height: 1.5; margin-bottom: 10px; color: #cbd5e1; }
+        .info-step b { color: white; display: block; margin-bottom: 2px; }
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 4000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
@@ -54,11 +74,6 @@
         .draw-heading { color: #0f172a !important; text-align: center; margin: 0; text-transform: uppercase; font-size: 1.1rem; }
         .comp-name-sub { color: #0284c7 !important; font-weight: 700; display: block; font-size: 1.3rem; text-align: center; margin-bottom: 15px; }
 
-        .row-red { background-color: var(--row-red) !important; }
-        .row-yellow { background-color: var(--row-yellow) !important; }
-        .row-green { background-color: var(--row-green) !important; }
-        .row-blue { background-color: var(--row-blue) !important; }
-
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } #entrySection, #resultsSection { padding-top: 0; } }
     </style>
 </head>
@@ -70,13 +85,13 @@
         <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.8rem;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:12px; background:var(--danger); color:white;">Clear All History</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:12px; background:var(--danger); color:white;">Clear History</button>
 </div>
 
 <div class="fixed-header no-print">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1 style="margin:0; font-size: 1.2rem; color:var(--accent); letter-spacing: 0.5px;">ZONE GENERATOR</h1>
-        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:6px 12px; border-radius:6px; font-size:11px;">HISTORY</button>
+        <h1 class="header-title">ZONE GENERATOR</h1>
+        <button onclick="toggleHistory()" class="btn-history-large">HISTORY</button>
     </div>
     <div class="action-bar" id="topControls" style="display:none;">
         <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
@@ -87,6 +102,14 @@
 
 <div class="container">
     <div id="entrySection" class="no-print">
+        
+        <div class="infographic">
+            <div class="info-title"><span>🛡️</span> THE INDEPENDENCE PROTOCOL</div>
+            <div class="info-step"><b>1. Team Isolation</b> Anglers from the same group are mathematically locked into different zones on Day 1.</div>
+            <div class="info-step"><b>2. Fair Rotation</b> All anglers automatically rotate to the next zone for Day 2 (e.g. Red → Yellow).</div>
+            <div class="info-step"><b>3. RNG Pegging</b> Specific pegs within zones are assigned via high-entropy Random Number Generation.</div>
+        </div>
+
         <div class="setup-bar">
             <div style="margin-bottom: 15px;">
                 <label style="font-size:10px; color:var(--accent)">MATCH NAME</label>
@@ -112,9 +135,7 @@
                 <button onclick="showEntry()" class="btn-nav btn-nav-amend"><span>✏️</span> AMEND</button>
             </div>
         </div>
-        
         <div id="resultsArea" style="background:white; padding:15px; border-radius:6px;"></div>
-        
         <button class="btn-draw-main no-print" style="width:100%; margin-top:25px; padding:20px; font-size: 16px;" onclick="archiveCurrent()">SAVE & FINALIZE MATCH</button>
     </div>
 </div>
@@ -131,7 +152,7 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v902_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v903_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item">
@@ -147,7 +168,6 @@
         const element = document.getElementById('resultsArea');
         const matchTitle = document.getElementById('matchTitle').value || 'MatchDraw';
         const opt = { margin: 10, filename: `${matchTitle}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-
         try {
             const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
             const file = new File([pdfBlob], `${matchTitle}.pdf`, { type: 'application/pdf' });
@@ -167,15 +187,15 @@
             blocks.push({ type, tName, names });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v902_archive') || '[]');
+        let archives = JSON.parse(localStorage.getItem('zonegen_v903_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         if (existingIdx > -1) archives[existingIdx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v902_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v903_archive', JSON.stringify(archives));
         alert("Match Saved."); fullReset(true);
     }
 
     function loadFromArchive(id, andShare = false) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v902_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v903_archive'));
         const data = archives.find(a => a.id === id);
         if (!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
@@ -200,22 +220,14 @@
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
         const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.5rem;padding:5px;">×</button>`;
-        
-        let focusTarget = null;
-
         if(type === 'team') {
             div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
-            focusTarget = div.querySelector('.t-name');
         } else {
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
-            focusTarget = div.querySelector('.a-name');
         }
-        
-        list.appendChild(div); 
-        document.getElementById('topControls').style.display = 'flex';
-        
-        // Auto-focus on the primary field
+        list.appendChild(div); document.getElementById('topControls').style.display = 'flex';
+        const focusTarget = type === 'team' ? div.querySelector('.t-name') : div.querySelector('.a-name');
         if(focusTarget) setTimeout(() => focusTarget.focus(), 50);
     }
 
@@ -265,9 +277,9 @@
 
     function renderResults(teams, indivs, map) {
         let mHtml = `<div class="beach-map" style="display:flex; gap:5px; margin-bottom:20px;">` + 
-            map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><b>${m.name}</b>${m.start}-${m.end}</div>`).join('') + `</div>`;
+            map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name}</b>${m.start}-${m.end}</div>`).join('') + `</div>`;
         const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+            data.map(a => `<tr><td><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z1].toLowerCase()});">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z2].toLowerCase()});">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let matchTitle = document.getElementById('matchTitle').value || 'Official Draw';
         let html = `<div style="text-align:center;"><h2 class="draw-heading">Official Draw Sheet</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
