@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.0.1</title>
+    <title>Zone Generator v9.0.2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,10 +19,8 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         
-        /* Fixed Navigation */
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: #1e293b; border-bottom: 2px solid var(--accent); padding: 12px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         
-        /* Spacing for content below fixed header */
         #entrySection { padding-top: 180px; }
         #resultsSection { padding-top: 100px; }
 
@@ -30,31 +28,26 @@
         #historyDrawer.open { right: 0; }
         .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
-        /* Setup & Entry Blocks */
         .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
         input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
         .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; position: relative; }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
-        /* Action Buttons */
         .action-bar { display: flex; gap: 10px; margin-top: 12px; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.1s active; }
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; }
         .btn-sm { padding: 14px; font-size: 13px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
         .btn-draw-main { background: var(--success); color: white; padding: 14px; flex: 2; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Results Control Bar (Amend/Share) */
         .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
         .nav-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-nav { padding: 16px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-nav-share { background: var(--success); color: white; }
         .btn-nav-amend { background: var(--warning); color: #000; }
 
-        /* Shoreline Visualization */
         .beach-map { display: flex; gap: 4px; margin-bottom: 20px; }
         .beach-zone { flex: 1; padding: 8px 2px; border-radius: 4px; text-align: center; color: #1e293b; font-size: 0.65rem; }
         .beach-zone b { display: block; font-size: 0.9rem; }
 
-        /* PDF Export Styles */
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; page-break-inside: avoid; }
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; }
@@ -138,7 +131,7 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v901_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v902_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item">
@@ -174,15 +167,15 @@
             blocks.push({ type, tName, names });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v901_archive') || '[]');
+        let archives = JSON.parse(localStorage.getItem('zonegen_v902_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         if (existingIdx > -1) archives[existingIdx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v901_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v902_archive', JSON.stringify(archives));
         alert("Match Saved."); fullReset(true);
     }
 
     function loadFromArchive(id, andShare = false) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v901_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v902_archive'));
         const data = archives.find(a => a.id === id);
         if (!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
@@ -207,13 +200,23 @@
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
         const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.5rem;padding:5px;">×</button>`;
+        
+        let focusTarget = null;
+
         if(type === 'team') {
             div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
+            focusTarget = div.querySelector('.t-name');
         } else {
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
+            focusTarget = div.querySelector('.a-name');
         }
-        list.appendChild(div); document.getElementById('topControls').style.display = 'flex';
+        
+        list.appendChild(div); 
+        document.getElementById('topControls').style.display = 'flex';
+        
+        // Auto-focus on the primary field
+        if(focusTarget) setTimeout(() => focusTarget.focus(), 50);
     }
 
     function runDraw() {
