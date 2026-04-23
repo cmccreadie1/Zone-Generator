@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v8.7.0</title>
+    <title>Zone Generator v8.8.0</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -18,12 +19,13 @@
         
         header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         
+        /* History Drawer */
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 3000; transition: 0.3s; padding: 20px; box-sizing: border-box; box-shadow: -10px 0 30px rgba(0,0,0,0.5); overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
+        .history-item:hover { border-color: var(--accent); }
 
         .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
         input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
 
@@ -34,16 +36,22 @@
         button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
         .btn-draw { background: var(--success); color: white; padding: 20px; flex: 2; font-size: 1.1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         .btn-save-archive { background: var(--accent); color: var(--bg); padding: 15px; width: 100%; margin-top: 15px; font-size: 1rem; }
-        .btn-amend { background: var(--warning); color: #000; padding: 12px; width: 100%; margin-bottom: 15px; }
 
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
 
-        @media print { .no-print, .floating-controls, #historyDrawer, .btn-save-archive { display: none !important; } }
+        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; }
+
+        @media print { .no-print, .floating-controls, #historyDrawer, #loadingOverlay { display: none !important; } }
     </style>
 </head>
 <body>
+
+<div id="loadingOverlay">
+    <div style="color: var(--accent); font-weight: bold; margin-bottom: 10px;">GENERATING FAIR DRAW...</div>
+    <div style="width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+</div>
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -51,31 +59,38 @@
         <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.5rem;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear History</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear All History</button>
 </div>
 
 <div class="container">
     <header class="no-print">
-        <h1>ZONE GENERATOR <small style="font-size: 0.7rem; color: var(--accent);">v8.7.0</small></h1>
-        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:5px 15px; border-radius:4px; font-size:12px;">Archives</button>
+        <h1>ZONE GENERATOR <small style="font-size: 0.7rem; color: var(--accent);">v8.8.0</small></h1>
+        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:5px 15px; border-radius:4px; font-size:12px;">Past Matches</button>
     </header>
 
     <div id="entrySection" class="no-print">
         <div class="setup-bar">
-            <div class="setup-grid">
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label>Competition Name</label>
+                <input type="text" id="matchTitle" placeholder="e.g. Kilsyth Open Round 1" oninput="saveCurrentMatchName()">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
                 <div class="input-group"><label>Teams</label><input type="number" id="initTeams" value="24"></div>
                 <div class="input-group"><label>Indivs</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:var(--bg); padding:10px; margin-top:10px;" onclick="bulkInit()">Generate Initial List</button>
+            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px;" onclick="bulkInit()">Initialize Entry List</button>
         </div>
         <div id="entryList"></div>
     </div>
 
     <div id="resultsSection" style="display: none;">
-        <button class="btn-amend no-print" onclick="showEntry()">AMEND CURRENT DRAW</button>
+        <div style="background:var(--card); padding:10px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
+            <span id="displayTitle" style="font-weight:bold; color:var(--accent);"></span>
+            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:5px 10px; border-radius:4px; font-size:12px;">Amend List</button>
+        </div>
         <div id="resultsArea"></div>
-        <button class="btn-save-archive no-print" onclick="archiveAndClear()">SAVE TO ARCHIVE & RESET WORKSPACE</button>
+        <button class="btn-save-archive no-print" onclick="archiveAndClear()">COMPLETE & ARCHIVE MATCH</button>
     </div>
 
     <div class="floating-controls no-print" id="footerUI" style="display:none;">
@@ -88,13 +103,10 @@
 <script>
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
-    let currentMatchName = "";
 
     // PWA Registration
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
-        });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
     }
 
     function toggleHistory() {
@@ -104,20 +116,18 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_archive_v87') || '[]');
-        if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b;'>Empty Archive.</p>"; return; }
+        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive') || '[]');
+        if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>Archive is empty.</p>"; return; }
         
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item" onclick="loadFromArchive(${archives.length - 1 - i})">
                 <div style="color:var(--accent); font-weight:bold;">${m.matchName}</div>
-                <div style="font-size:0.7rem; color:#94a3b8;">${m.timestamp}</div>
+                <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">${m.timestamp}</div>
             </div>`).join('');
     }
 
     function archiveAndClear() {
-        const matchName = prompt("Match Name?", currentMatchName);
-        if(!matchName) return;
-
+        const mTitle = document.getElementById('matchTitle').value || "Unnamed Match";
         const blocks = [];
         document.querySelectorAll('.entry-block').forEach(block => {
             const type = block.dataset.type;
@@ -127,24 +137,26 @@
         });
 
         const archiveData = {
-            matchName,
+            matchName: mTitle,
             timestamp: new Date().toLocaleString(),
             z: document.getElementById('numZones').value,
             blocks,
             locks: Object.fromEntries(lockedAssignments)
         };
 
-        const archives = JSON.parse(localStorage.getItem('zonegen_archive_v87') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive') || '[]');
         archives.push(archiveData);
-        localStorage.setItem('zonegen_archive_v87', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v880_archive', JSON.stringify(archives));
+        alert("Match archived successfully.");
         fullReset(true);
     }
 
     function loadFromArchive(idx) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_archive_v87'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive'));
         const data = archives[idx];
-        if(!confirm(`Load "${data.matchName}"?`)) return;
-        currentMatchName = data.matchName;
+        if(!confirm(`Open "${data.matchName}" for viewing/amendment?`)) return;
+        
+        document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList');
         list.innerHTML = '';
@@ -169,79 +181,91 @@
         const div = document.createElement('div');
         div.className = 'entry-block';
         div.dataset.type = type;
-        const remove = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.2rem">×</button>`;
+        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.2rem;">×</button>`;
         if(type === 'team') {
-            div.innerHTML = `${remove}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px">
+            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
         } else {
-            div.innerHTML = `${remove}<input type="text" class="a-name" placeholder="Angler Name" value="${names[0] || ""}">`;
+            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
         }
         list.appendChild(div);
         document.getElementById('footerUI').style.display = 'flex';
     }
 
-    function runDraw() {
-        const nZones = parseInt(document.getElementById('numZones').value) || 1;
-        let teams = {}; let indivs = []; let all = [];
+    async function runDraw() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        // Timeout allows UI to show loader before heavy math starts
+        setTimeout(() => {
+            const nZones = parseInt(document.getElementById('numZones').value) || 1;
+            let teams = {}; let indivs = []; let all = [];
 
-        document.querySelectorAll('.entry-block').forEach(block => {
-            const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
-            const tName = block.querySelector('.t-name')?.value || "Team";
-            if(block.dataset.type === 'team' && names.length) {
-                teams[tName] = names.map(n => ({ name: n, team: tName }));
-                all.push(...teams[tName]);
-            } else if(names[0]) {
-                const a = { name: names[0], team: 'Individual' };
-                indivs.push(a); all.push(a);
+            document.querySelectorAll('.entry-block').forEach(block => {
+                const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
+                const tName = block.querySelector('.t-name')?.value || "Team";
+                if(block.dataset.type === 'team' && names.length) {
+                    teams[tName] = names.map(n => ({ name: n, team: tName }));
+                    all.push(...teams[tName]);
+                } else if(names[0]) {
+                    const a = { name: names[0], team: 'Individual' };
+                    indivs.push(a); all.push(a);
+                }
+            });
+
+            if(!all.length) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                return alert("No angler names found.");
             }
-        });
 
-        if(!all.length) return alert("Enter names!");
-
-        const base = Math.floor(all.length / nZones);
-        const rem = all.length % nZones;
-        let map = []; let cur = 1;
-        for(let i=0; i<nZones; i++) {
-            let s = base + (i < rem ? 1 : 0);
-            map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, u1: new Set(), u2: new Set() });
-            cur += s;
-        }
-
-        all.forEach(a => {
-            if(lockedAssignments.has(a.name)) {
-                const p = lockedAssignments.get(a.name);
-                a.z1 = p.z1; a.p1 = p.p1; a.z2 = p.z2; a.p2 = p.p2;
-                if(map[a.z1]) map[a.z1].u1.add(a.p1);
-                if(map[a.z2]) map[a.z2].u2.add(a.p2);
+            const base = Math.floor(all.length / nZones);
+            const rem = all.length % nZones;
+            let map = []; let cur = 1;
+            for(let i=0; i<nZones; i++) {
+                let s = base + (i < rem ? 1 : 0);
+                map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, u1: new Set(), u2: new Set() });
+                cur += s;
             }
-        });
 
-        all.forEach(a => {
-            if(!lockedAssignments.has(a.name)) {
-                const z = Math.floor(Math.random() * nZones);
-                a.z1 = z; a.p1 = getPeg(map[z], 'u1');
-                const z2 = (z + 1) % nZones;
-                a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
-                lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
-            }
-        });
+            // Persistence logic
+            all.forEach(a => {
+                if(lockedAssignments.has(a.name)) {
+                    const p = lockedAssignments.get(a.name);
+                    a.z1 = p.z1; a.p1 = p.p1; a.z2 = p.z2; a.p2 = p.p2;
+                    if(map[a.z1]) map[a.z1].u1.add(a.p1);
+                    if(map[a.z2]) map[a.z2].u2.add(a.p2);
+                }
+            });
 
-        renderResults(teams, indivs, map);
-        document.getElementById('entrySection').style.display = 'none';
-        document.getElementById('resultsSection').style.display = 'block';
+            all.forEach(a => {
+                if(!lockedAssignments.has(a.name)) {
+                    const z = Math.floor(Math.random() * nZones);
+                    a.z1 = z; a.p1 = getPeg(map[z], 'u1');
+                    const z2 = (z + 1) % nZones;
+                    a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
+                    lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
+                }
+            });
+
+            renderResults(teams, indivs, map);
+            document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "Current Match";
+            document.getElementById('entrySection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }, 100);
     }
 
     function getPeg(z, k) {
-        let p; do { p = Math.floor(Math.random() * z.size) + z.start; } while (z[k].has(p));
+        let p; let att = 0;
+        do { p = Math.floor(Math.random() * z.size) + z.start; att++; } while (z[k].has(p) && att < 1500);
         z[k].add(p); return p;
     }
 
     function renderResults(teams, indivs, map) {
         let mHtml = `<div style="display:flex;gap:5px;margin-bottom:20px;flex-wrap:wrap">` + 
-            map.map(m => `<div class="row-${m.name.toLowerCase()}" style="flex:1;padding:10px;border-radius:4px;text-align:center;color:#1e293b;min-width:100px;"><small>${m.name}</small><br><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
+            map.map(m => `<div class="row-${m.name.toLowerCase()}" style="flex:1;padding:10px;border-radius:4px;text-align:center;color:#1e293b;min-width:110px;"><small>${m.name}</small><br><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
         const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
-        let html = `<h2 style="text-align:center; color:#1e293b;">DRAW RESULTS</h2>` + mHtml;
+        let html = `<h2 style="text-align:center; color:#1e293b; margin-top:0;">MATCH DRAW RESULTS</h2>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
@@ -254,14 +278,19 @@
     }
 
     function fullReset(silent = false) {
-        if(silent || confirm("Reset workplace?")) {
+        if(silent || confirm("Clear workspace? History will be preserved.")) {
             lockedAssignments.clear();
             document.getElementById('entryList').innerHTML = '';
             document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('entrySection').style.display = 'block';
+            document.getElementById('matchTitle').value = '';
             document.getElementById('footerUI').style.display = 'none';
         }
     }
 </script>
+
+<style>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 </body>
 </html>
