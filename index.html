@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v8.9.0</title>
+    <title>Zone Generator v8.9.5</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,26 +13,30 @@
             --accent: #38bdf8; --success: #10b981; --border: #334155;
             --warning: #f59e0b; --danger: #ef4444;
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
+            --row-orange: #ffb347; --row-purple: #b39ddb; --row-silver: #cfd8dc; --row-gold: #ffe082;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        /* Sticky Header */
-        .sticky-header { 
-            position: sticky; 
+        /* FIXED Control Header - Guaranteed to stay at top */
+        .fixed-header { 
+            position: fixed; 
             top: 0; 
-            z-index: 2000; 
-            background: rgba(30, 41, 59, 0.95); 
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            left: 0;
+            right: 0;
+            z-index: 3000; 
+            background: #1e293b; 
+            border-bottom: 2px solid var(--accent);
+            padding: 10px 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        
-        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 3000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        /* Padding to prevent content being hidden under the fixed header */
+        #entrySection { padding-top: 170px; }
+        #resultsSection { padding-top: 10px; }
+
+        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 4000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
 
@@ -43,27 +47,33 @@
         .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; position: relative; }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
-        /* Control Bar Buttons */
         .action-bar { display: flex; gap: 8px; margin-top: 10px; }
         button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-        .btn-sm { padding: 10px; font-size: 12px; background: var(--card); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
-        .btn-draw-main { background: var(--success); color: white; padding: 10px 20px; flex: 2; font-size: 14px; }
+        .btn-sm { padding: 12px; font-size: 12px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
+        .btn-draw-main { background: var(--success); color: white; padding: 12px; flex: 2; font-size: 14px; text-transform: uppercase; }
+
+        /* Beach Map / Shoreline */
+        .beach-map { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; }
+        .beach-zone { flex: 1; min-width: 80px; padding: 10px 5px; border-radius: 6px; text-align: center; color: #1e293b; font-size: 0.8rem; }
+        .beach-zone b { display: block; font-size: 1rem; }
 
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
 
-        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; }
+        .row-red { background-color: var(--row-red) !important; }
+        .row-yellow { background-color: var(--row-yellow) !important; }
+        .row-green { background-color: var(--row-green) !important; }
+        .row-blue { background-color: var(--row-blue) !important; }
+        .row-orange { background-color: var(--row-orange) !important; }
+        .row-purple { background-color: var(--row-purple) !important; }
+        .row-silver { background-color: var(--row-silver) !important; }
+        .row-gold { background-color: var(--row-gold) !important; }
 
-        @media print { .no-print, .sticky-header, #historyDrawer { display: none !important; } }
+        @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } #entrySection { padding-top: 0; } }
     </style>
 </head>
 <body>
-
-<div id="loadingOverlay">
-    <div style="color: var(--accent); font-weight: bold; margin-bottom: 10px;">SHUFFLING PEGS...</div>
-    <div style="width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-</div>
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -74,15 +84,15 @@
     <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear All</button>
 </div>
 
-<div class="sticky-header no-print">
-    <header>
-        <h1 style="margin:0; font-size: 1.2rem;">ZONE GENERATOR</h1>
-        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:5px 12px; border-radius:4px; font-size:11px;">History</button>
-    </header>
+<div class="fixed-header no-print">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1 style="margin:0; font-size: 1.1rem; color:var(--accent);">ZONE GENERATOR</h1>
+        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:4px 10px; border-radius:4px; font-size:10px;">HISTORY</button>
+    </div>
     
     <div class="action-bar" id="topControls" style="display:none;">
-        <button class="btn-sm" onclick="addNewItem('team')">+ Team</button>
-        <button class="btn-sm" onclick="addNewItem('indiv')">+ Indiv</button>
+        <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
+        <button class="btn-sm" onclick="addNewItem('indiv')">+ INDIV</button>
         <button class="btn-draw-main" onclick="runDraw()">PROCESS DRAW</button>
     </div>
 </div>
@@ -91,15 +101,15 @@
     <div id="entrySection" class="no-print">
         <div class="setup-bar">
             <div class="input-group" style="margin-bottom: 15px;">
-                <label>Match Name</label>
-                <input type="text" id="matchTitle" placeholder="e.g. Sunday Open">
+                <label>Competition Name</label>
+                <input type="text" id="matchTitle" placeholder="e.g. Shore Match Rd 1">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
                 <div class="input-group"><label>Teams</label><input type="number" id="initTeams" value="24"></div>
                 <div class="input-group"><label>Indivs</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px; font-weight:bold;" onclick="bulkInit()">Initialize List</button>
+            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px; font-weight:bold;" onclick="bulkInit()">INITIALIZE ANGLER LIST</button>
         </div>
         <div id="entryList"></div>
     </div>
@@ -107,20 +117,16 @@
     <div id="resultsSection" style="display: none;">
         <div style="background:var(--card); padding:12px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
             <span id="displayTitle" style="font-weight:bold; color:var(--accent);"></span>
-            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">Amend Entries</button>
+            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">AMEND DRAW</button>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveAndClear()">COMPLETE & SAVE TO HISTORY</button>
+        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveAndClear()">COMPLETE & FILE MATCH</button>
     </div>
 </div>
 
 <script>
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
-    }
 
     function toggleHistory() {
         document.getElementById('historyDrawer').classList.toggle('open');
@@ -129,7 +135,7 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item" onclick="loadFromArchive(${archives.length - 1 - i})">
@@ -156,15 +162,15 @@
             locks: Object.fromEntries(lockedAssignments)
         };
 
-        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive') || '[]');
         archives.push(archiveData);
-        localStorage.setItem('zonegen_v890_archive', JSON.stringify(archives));
-        alert("Saved to history. Workspace cleared.");
+        localStorage.setItem('zonegen_v895_archive', JSON.stringify(archives));
+        alert("Match Filed in History.");
         fullReset(true);
     }
 
     function loadFromArchive(idx) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive'));
         const data = archives[idx];
         if(!confirm(`Restore "${data.matchName}"?`)) return;
         document.getElementById('matchTitle').value = data.matchName;
@@ -203,64 +209,58 @@
         document.getElementById('topControls').style.display = 'flex';
     }
 
-    async function runDraw() {
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        setTimeout(() => {
-            const nZones = parseInt(document.getElementById('numZones').value) || 1;
-            let teams = {}; let indivs = []; let all = [];
+    function runDraw() {
+        const nZones = parseInt(document.getElementById('numZones').value) || 1;
+        let teams = {}; let indivs = []; let all = [];
 
-            document.querySelectorAll('.entry-block').forEach(block => {
-                const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
-                const tName = block.querySelector('.t-name')?.value || "Team";
-                if(block.dataset.type === 'team' && names.length) {
-                    teams[tName] = names.map(n => ({ name: n, team: tName }));
-                    all.push(...teams[tName]);
-                } else if(names[0]) {
-                    const a = { name: names[0], team: 'Individual' };
-                    indivs.push(a); all.push(a);
-                }
-            });
-
-            if(!all.length) {
-                document.getElementById('loadingOverlay').style.display = 'none';
-                return alert("No names entered.");
+        document.querySelectorAll('.entry-block').forEach(block => {
+            const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
+            const tName = block.querySelector('.t-name')?.value || "Team";
+            if(block.dataset.type === 'team' && names.length) {
+                teams[tName] = names.map(n => ({ name: n, team: tName }));
+                all.push(...teams[tName]);
+            } else if(names[0]) {
+                const a = { name: names[0], team: 'Individual' };
+                indivs.push(a); all.push(a);
             }
+        });
 
-            const base = Math.floor(all.length / nZones);
-            const rem = all.length % nZones;
-            let map = []; let cur = 1;
-            for(let i=0; i<nZones; i++) {
-                let s = base + (i < rem ? 1 : 0);
-                map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, u1: new Set(), u2: new Set() });
-                cur += s;
+        if(!all.length) return alert("Please enter angler names.");
+
+        const base = Math.floor(all.length / nZones);
+        const rem = all.length % nZones;
+        let map = []; let cur = 1;
+        for(let i=0; i<nZones; i++) {
+            let s = base + (i < rem ? 1 : 0);
+            map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, u1: new Set(), u2: new Set() });
+            cur += s;
+        }
+
+        // Persistence Logic
+        all.forEach(a => {
+            if(lockedAssignments.has(a.name)) {
+                const p = lockedAssignments.get(a.name);
+                a.z1 = p.z1; a.p1 = p.p1; a.z2 = p.z2; a.p2 = p.p2;
+                if(map[a.z1]) map[a.z1].u1.add(a.p1);
+                if(map[a.z2]) map[a.z2].u2.add(a.p2);
             }
+        });
 
-            all.forEach(a => {
-                if(lockedAssignments.has(a.name)) {
-                    const p = lockedAssignments.get(a.name);
-                    a.z1 = p.z1; a.p1 = p.p1; a.z2 = p.z2; a.p2 = p.p2;
-                    if(map[a.z1]) map[a.z1].u1.add(a.p1);
-                    if(map[a.z2]) map[a.z2].u2.add(a.p2);
-                }
-            });
+        all.forEach(a => {
+            if(!lockedAssignments.has(a.name)) {
+                const z = Math.floor(Math.random() * nZones);
+                a.z1 = z; a.p1 = getPeg(map[z], 'u1');
+                const z2 = (z + 1) % nZones;
+                a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
+                lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
+            }
+        });
 
-            all.forEach(a => {
-                if(!lockedAssignments.has(a.name)) {
-                    const z = Math.floor(Math.random() * nZones);
-                    a.z1 = z; a.p1 = getPeg(map[z], 'u1');
-                    const z2 = (z + 1) % nZones;
-                    a.z2 = z2; a.p2 = getPeg(map[z2], 'u2');
-                    lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
-                }
-            });
-
-            renderResults(teams, indivs, map);
-            document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "Current Match";
-            document.getElementById('entrySection').style.display = 'none';
-            document.getElementById('resultsSection').style.display = 'block';
-            document.getElementById('topControls').style.display = 'none';
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }, 100);
+        renderResults(teams, indivs, map);
+        document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "Current Match";
+        document.getElementById('entrySection').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('topControls').style.display = 'none';
     }
 
     function getPeg(z, k) {
@@ -270,11 +270,13 @@
     }
 
     function renderResults(teams, indivs, map) {
-        let mHtml = `<div style="display:flex;gap:5px;margin-bottom:20px;flex-wrap:wrap">` + 
-            map.map(m => `<div class="row-${m.name.toLowerCase()}" style="flex:1;padding:10px;border-radius:4px;text-align:center;color:#1e293b;min-width:110px;"><small>${m.name}</small><br><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
+        let mHtml = `<div class="beach-map no-print">` + 
+            map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><small>${m.name}</small><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
+        
         const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
-        let html = `<h2 style="text-align:center; color:#1e293b; margin-top:0;">MATCH DRAW RESULTS</h2>` + mHtml;
+
+        let html = `<h2 style="text-align:center; color:#1e293b; margin-top:0;">MATCH DRAW: ${document.getElementById('matchTitle').value || 'OFFICIAL'}</h2>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
@@ -288,7 +290,7 @@
     }
 
     function fullReset(silent = false) {
-        if(silent || confirm("Clear all?")) {
+        if(silent || confirm("Clear current workspace?")) {
             lockedAssignments.clear();
             document.getElementById('entryList').innerHTML = '';
             document.getElementById('resultsSection').style.display = 'none';
@@ -298,9 +300,5 @@
         }
     }
 </script>
-
-<style>
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
 </body>
 </html>
