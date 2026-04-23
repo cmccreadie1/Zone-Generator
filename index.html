@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.3</title>
+    <title>Zone Generator v9.2.4</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -40,7 +40,6 @@
         #entrySection { padding-top: 175px; }
         #resultsSection { padding-top: 100px; }
 
-        /* MINIFIED INFOGRAPHIC FONT */
         .infographic { background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8)); border: 2px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 20px; }
         .info-title { color: var(--accent); font-weight: 900; font-size: 10px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1.2px; }
         .info-step { font-size: 10px; line-height: 1.4; margin-bottom: 4px; color: #ffffff; }
@@ -60,11 +59,17 @@
         
         .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
+        /* Results Control Styling */
+        .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px; }
+        .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .btn-nav-action { padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 9000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         
-        @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
+        @media print { .no-print, .fixed-header, #historyDrawer, .results-nav-bar { display: none !important; } #resultsSection { padding-top: 0; } body { background: white; } }
     </style>
 </head>
 <body>
@@ -94,7 +99,7 @@
     <div id="entrySection" class="no-print">
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
-            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members are systematically isolated across zones. It is mathematically impossible for teammates to share a zone on Day 1.</div>
+            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members systematically isolated. Mathematically impossible for teammates to share a zone on Day 1.</div>
             <div class="info-step"><b>2. RNG PEGGING:</b> All assignments generated via randomized array shuffling.</div>
             <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends.</div>
         </div>
@@ -114,15 +119,23 @@
     </div>
 
     <div id="resultsSection" style="display: none;">
-        <div class="results-nav-bar no-print" style="background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px;">
+        <div class="results-nav-bar no-print">
             <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 15px;">
-                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.3rem;"></span>
+                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.1rem;"></span>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 15px; cursor: pointer;">📤 SHARE PDF</button>
-                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 15px; cursor: pointer;">✏️ AMEND</button>
+            <div class="nav-btn-grid">
+                <button onclick="sharePDF()" class="btn-nav-action" style="background:var(--success); color:white;">
+                    <span style="font-size: 18px;">📤</span> SHARE
+                </button>
+                <button onclick="window.print()" class="btn-nav-action" style="background:var(--accent); color:#000;">
+                    <span style="font-size: 18px;">🖨️</span> PRINT
+                </button>
+                <button onclick="showEntry()" class="btn-nav-action" style="background:var(--warning); color:#000;">
+                    <span style="font-size: 18px;">✏️</span> AMEND
+                </button>
             </div>
         </div>
+        
         <div id="resultsArea"></div>
         <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE</button>
     </div>
@@ -132,18 +145,14 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v923_archive';
+    const STORAGE_KEY = 'zonegen_v924_archive';
 
-    function toggleHistory() { 
-        document.getElementById('historyDrawer').classList.toggle('open'); 
-        renderHistoryList(); 
-    }
+    function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
         let archives = [];
         try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { archives = []; }
-        
         if(archives.length === 0) { list.innerHTML = "<p style='color:#ffffff; text-align:center;'>Vault is empty.</p>"; return; }
         list.innerHTML = archives.reverse().map(m => `
             <div class="history-item" style="background:var(--card); border:2px solid var(--border); padding:15px; border-radius:12px; margin-bottom:10px; display: flex; align-items: center;">
@@ -156,8 +165,7 @@
     }
 
     function bulkInit() {
-        const list = document.getElementById('entryList'); 
-        list.innerHTML = '';
+        const list = document.getElementById('entryList'); list.innerHTML = '';
         const t = parseInt(document.getElementById('initTeams').value) || 0;
         const i = parseInt(document.getElementById('initIndivs').value) || 0;
         for(let x=0; x<t; x++) addNewItem('team');
@@ -246,12 +254,7 @@
         window.scrollTo(0,0);
     }
 
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
+    function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
     function renderResults(teams, indivs, map) {
         let mHtml = `<div style="display:flex; gap:5px; margin-bottom:15px;">` + 
@@ -270,48 +273,39 @@
             blocks.push({ type: block.dataset.type, tName: block.querySelector('.t-name')?.value || "", names: Array.from(block.querySelectorAll('.a-name')).map(inp => inp.value) });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: document.getElementById('matchTitle').value || "Match", timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = [];
-        try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
+        let archives = []; try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(archives));
-        alert("Saved to Vault."); fullReset(true);
+        alert("Saved."); fullReset(true);
     }
 
     function loadFromArchive(id, share = false) {
-        let archives = [];
-        try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
-        const data = archives.find(a => a.id === id);
-        if(!data) return;
+        let archives = []; try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
+        const data = archives.find(a => a.id === id); if(!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList'); list.innerHTML = '';
         data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names));
         lockedAssignments = new Map(Object.entries(data.locks));
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
-        runDraw();
-        if(share) setTimeout(sharePDF, 500);
+        runDraw(); if(share) setTimeout(sharePDF, 500);
     }
 
-    function sharePDF() {
+    async function sharePDF() {
         const title = document.getElementById('matchTitle').value || 'Results';
         const element = document.getElementById('resultsArea');
-        html2pdf().set({ margin: 10, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
+        try {
+            const pdfBlob = await html2pdf().set({ margin: 10, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).output('blob');
+            const file = new File([pdfBlob], `${title}.pdf`, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Match Draw Results' });
+            } else { html2pdf().from(element).save(); }
+        } catch (err) { html2pdf().from(element).save(); }
     }
 
     function showEntry() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
-    
-    function fullReset(silent = false) { 
-        if(silent || confirm("WIPE?")) { 
-            lockedAssignments.clear(); 
-            currentMatchID = null; 
-            document.getElementById('entryList').innerHTML = ''; 
-            document.getElementById('resultsSection').style.display = 'none'; 
-            document.getElementById('entrySection').style.display = 'block'; 
-            document.getElementById('matchTitle').value = '';
-            document.getElementById('topControls').style.display = 'none';
-        } 
-    }
+    function fullReset(silent = false) { if(silent || confirm("WIPE?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; document.getElementById('matchTitle').value = ''; document.getElementById('topControls').style.display = 'none'; } }
 </script>
 </body>
 </html>
