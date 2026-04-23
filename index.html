@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.7</title>
+    <title>Zone Generator v9.2.8</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,29 +57,13 @@
         
         .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
-        .results-nav-bar { 
-            background: var(--card); padding: 15px; border-radius: 12px; 
-            border: 2px solid var(--border); margin-bottom: 20px;
-            position: relative; z-index: 10;
-        }
+        .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px; position: relative; z-index: 10; }
         .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .btn-nav-action { padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
         
-        /* High Contrast Zone Legend for PDF */
-        .pdf-zone-key { 
-            display: flex; gap: 5px; margin-bottom: 20px; 
-            background: #eee; padding: 8px; border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-        .pdf-zone-tag { 
-            flex: 1; text-align: center; padding: 10px 2px; 
-            border-radius: 8px; color: #000 !important; 
-            font-weight: 900; font-size: 10px; 
-            border: 1px solid rgba(0,0,0,0.2);
-            -webkit-print-color-adjust: exact; 
-        }
+        .pdf-zone-tag { flex: 1; text-align: center; padding: 10px 2px; border-radius: 8px; color: #000 !important; font-weight: 900; font-size: 10px; border: 1px solid rgba(0,0,0,0.2); -webkit-print-color-adjust: exact; }
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 9000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
@@ -114,9 +98,9 @@
     <div id="entrySection" class="no-print">
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
-            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members systematically isolated. Mathematically impossible for teammates to share a zone on Day 1.</div>
-            <div class="info-step"><b>2. RNG PEGGING:</b> All assignments generated via randomized array shuffling.</div>
-            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends.</div>
+            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members systematically isolated across zones on Day 1.</div>
+            <div class="info-step"><b>2. RNG PEGGING:</b> All assignments generated via high-entropy randomized shuffling.</div>
+            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends to prevent reshuffling.</div>
         </div>
         <div class="setup-bar">
             <div style="margin-bottom: 20px;">
@@ -160,7 +144,7 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v927_archive';
+    const STORAGE_KEY = 'zonegen_v928_archive';
 
     function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
 
@@ -228,6 +212,7 @@
             cur += s;
         }
 
+        // 1. PINNED LOCKS
         all.forEach(a => {
             if(lockedAssignments.has(a.name)) {
                 const p = lockedAssignments.get(a.name);
@@ -237,6 +222,7 @@
             }
         });
 
+        // 2. TEAM ASSIGNMENT (NO COLLISION)
         Object.keys(teams).forEach(t => {
             let zoneIndices = Array.from({length: nZones}, (_, i) => i);
             shuffle(zoneIndices);
@@ -251,14 +237,25 @@
             });
         });
 
+        // 3. INDIVIDUAL ASSIGNMENT (THE "UNDEFINED" FIX)
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
-                let avail = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx].p1Pool.length > 0);
-                const z1Idx = avail[Math.floor(Math.random() * avail.length)];
-                const z2Idx = (z1Idx + 1) % nZones;
-                a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
-                a.z2 = z2Idx; a.p2 = map[z2Idx].p2Pool.pop();
-                lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
+                let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx].p1Pool.length > 0);
+                if(availZ1.length > 0) {
+                    const z1Idx = availZ1[Math.floor(Math.random() * availZ1.length)];
+                    const z2Idx = (z1Idx + 1) % nZones;
+                    // Ensure Day 2 peg pool is checked
+                    if (map[z2Idx].p2Pool.length === 0) {
+                        // Fallback to any zone with a Day 2 peg
+                        const backupZ2 = Array.from({length: nZones}, (_, i) => i).find(idx => map[idx].p2Pool.length > 0);
+                        a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
+                        a.z2 = backupZ2; a.p2 = map[backupZ2].p2Pool.pop();
+                    } else {
+                        a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
+                        a.z2 = z2Idx; a.p2 = map[z2Idx].p2Pool.pop();
+                    }
+                    lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
+                }
             }
         });
 
@@ -273,12 +270,11 @@
     function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
     function renderResults(teams, indivs, map) {
-        let keyHtml = `<div class="pdf-zone-key no-print" style="margin-bottom:10px; font-weight:bold; font-size:12px; text-align:center;">ZONE DEFINITION KEY</div>` + 
-            `<div style="display:flex; gap:5px; margin-bottom:20px;">` + 
+        let keyHtml = `<div style="display:flex; gap:5px; margin-bottom:20px;">` + 
             map.map(m => `<div class="pdf-zone-tag" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
         
-        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px; border-bottom: 1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px; border-bottom: 1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px; -webkit-print-color-adjust: exact;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         
         let html = `<div style="text-align:center; padding-bottom:15px;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + keyHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
