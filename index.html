@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v8.8.0</title>
+    <title>Zone Generator v8.9.0</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,28 +14,40 @@
             --warning: #f59e0b; --danger: #ef4444;
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 950px; margin: 0 auto; padding-bottom: 140px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        header { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        /* Sticky Header */
+        .sticky-header { 
+            position: sticky; 
+            top: 0; 
+            z-index: 2000; 
+            background: rgba(30, 41, 59, 0.95); 
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         
-        /* History Drawer */
-        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 3000; transition: 0.3s; padding: 20px; box-sizing: border-box; box-shadow: -10px 0 30px rgba(0,0,0,0.5); overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 3000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
-        .history-item:hover { border-color: var(--accent); }
 
-        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
         .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
         input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
 
         .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; position: relative; }
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
-        .floating-controls { position: fixed; bottom: 15px; left: 15px; right: 15px; z-index: 100; display: flex; gap: 10px; }
+        /* Control Bar Buttons */
+        .action-bar { display: flex; gap: 8px; margin-top: 10px; }
         button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-        .btn-draw { background: var(--success); color: white; padding: 20px; flex: 2; font-size: 1.1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .btn-save-archive { background: var(--accent); color: var(--bg); padding: 15px; width: 100%; margin-top: 15px; font-size: 1rem; }
+        .btn-sm { padding: 10px; font-size: 12px; background: var(--card); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
+        .btn-draw-main { background: var(--success); color: white; padding: 10px 20px; flex: 2; font-size: 14px; }
 
         .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
@@ -43,60 +55,62 @@
 
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; }
 
-        @media print { .no-print, .floating-controls, #historyDrawer, #loadingOverlay { display: none !important; } }
+        @media print { .no-print, .sticky-header, #historyDrawer { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div id="loadingOverlay">
-    <div style="color: var(--accent); font-weight: bold; margin-bottom: 10px;">GENERATING FAIR DRAW...</div>
-    <div style="width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <div style="color: var(--accent); font-weight: bold; margin-bottom: 10px;">SHUFFLING PEGS...</div>
+    <div style="width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
 </div>
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; color:var(--accent);">Match Archive</h3>
+        <h3 style="margin:0; color:var(--accent);">Archives</h3>
         <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.5rem;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear All History</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear All</button>
+</div>
+
+<div class="sticky-header no-print">
+    <header>
+        <h1 style="margin:0; font-size: 1.2rem;">ZONE GENERATOR</h1>
+        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:5px 12px; border-radius:4px; font-size:11px;">History</button>
+    </header>
+    
+    <div class="action-bar" id="topControls" style="display:none;">
+        <button class="btn-sm" onclick="addNewItem('team')">+ Team</button>
+        <button class="btn-sm" onclick="addNewItem('indiv')">+ Indiv</button>
+        <button class="btn-draw-main" onclick="runDraw()">PROCESS DRAW</button>
+    </div>
 </div>
 
 <div class="container">
-    <header class="no-print">
-        <h1>ZONE GENERATOR <small style="font-size: 0.7rem; color: var(--accent);">v8.8.0</small></h1>
-        <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:5px 15px; border-radius:4px; font-size:12px;">Past Matches</button>
-    </header>
-
     <div id="entrySection" class="no-print">
         <div class="setup-bar">
             <div class="input-group" style="margin-bottom: 15px;">
-                <label>Competition Name</label>
-                <input type="text" id="matchTitle" placeholder="e.g. Kilsyth Open Round 1" oninput="saveCurrentMatchName()">
+                <label>Match Name</label>
+                <input type="text" id="matchTitle" placeholder="e.g. Sunday Open">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
                 <div class="input-group"><label>Teams</label><input type="number" id="initTeams" value="24"></div>
                 <div class="input-group"><label>Indivs</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px;" onclick="bulkInit()">Initialize Entry List</button>
+            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px; font-weight:bold;" onclick="bulkInit()">Initialize List</button>
         </div>
         <div id="entryList"></div>
     </div>
 
     <div id="resultsSection" style="display: none;">
-        <div style="background:var(--card); padding:10px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
+        <div style="background:var(--card); padding:12px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
             <span id="displayTitle" style="font-weight:bold; color:var(--accent);"></span>
-            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:5px 10px; border-radius:4px; font-size:12px;">Amend List</button>
+            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">Amend Entries</button>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-save-archive no-print" onclick="archiveAndClear()">COMPLETE & ARCHIVE MATCH</button>
-    </div>
-
-    <div class="floating-controls no-print" id="footerUI" style="display:none;">
-        <button onclick="addNewItem('team')" style="flex:1; background:var(--card); border:1px dashed var(--accent); color:var(--accent);">+ Team</button>
-        <button onclick="addNewItem('indiv')" style="flex:1; background:var(--card); border:1px dashed var(--accent); color:var(--accent);">+ Indiv</button>
-        <button class="btn-draw" onclick="runDraw()">PROCESS DRAW</button>
+        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveAndClear()">COMPLETE & SAVE TO HISTORY</button>
     </div>
 </div>
 
@@ -104,7 +118,6 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
 
-    // PWA Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
     }
@@ -116,9 +129,8 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive') || '[]');
-        if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>Archive is empty.</p>"; return; }
-        
+        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive') || '[]');
+        if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item" onclick="loadFromArchive(${archives.length - 1 - i})">
                 <div style="color:var(--accent); font-weight:bold;">${m.matchName}</div>
@@ -144,18 +156,17 @@
             locks: Object.fromEntries(lockedAssignments)
         };
 
-        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive') || '[]');
         archives.push(archiveData);
-        localStorage.setItem('zonegen_v880_archive', JSON.stringify(archives));
-        alert("Match archived successfully.");
+        localStorage.setItem('zonegen_v890_archive', JSON.stringify(archives));
+        alert("Saved to history. Workspace cleared.");
         fullReset(true);
     }
 
     function loadFromArchive(idx) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v880_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v890_archive'));
         const data = archives[idx];
-        if(!confirm(`Open "${data.matchName}" for viewing/amendment?`)) return;
-        
+        if(!confirm(`Restore "${data.matchName}"?`)) return;
         document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList');
@@ -173,7 +184,7 @@
         const i = parseInt(document.getElementById('initIndivs').value) || 0;
         for(let x=0; x<t; x++) addNewItem('team');
         for(let y=0; y<i; y++) addNewItem('indiv');
-        document.getElementById('footerUI').style.display = 'flex';
+        document.getElementById('topControls').style.display = 'flex';
     }
 
     function addNewItem(type, tName = "", names = []) {
@@ -189,13 +200,11 @@
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
         }
         list.appendChild(div);
-        document.getElementById('footerUI').style.display = 'flex';
+        document.getElementById('topControls').style.display = 'flex';
     }
 
     async function runDraw() {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        // Timeout allows UI to show loader before heavy math starts
         setTimeout(() => {
             const nZones = parseInt(document.getElementById('numZones').value) || 1;
             let teams = {}; let indivs = []; let all = [];
@@ -214,7 +223,7 @@
 
             if(!all.length) {
                 document.getElementById('loadingOverlay').style.display = 'none';
-                return alert("No angler names found.");
+                return alert("No names entered.");
             }
 
             const base = Math.floor(all.length / nZones);
@@ -226,7 +235,6 @@
                 cur += s;
             }
 
-            // Persistence logic
             all.forEach(a => {
                 if(lockedAssignments.has(a.name)) {
                     const p = lockedAssignments.get(a.name);
@@ -250,6 +258,7 @@
             document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "Current Match";
             document.getElementById('entrySection').style.display = 'none';
             document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('topControls').style.display = 'none';
             document.getElementById('loadingOverlay').style.display = 'none';
         }, 100);
     }
@@ -275,16 +284,17 @@
     function showEntry() {
         document.getElementById('entrySection').style.display = 'block';
         document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('topControls').style.display = 'flex';
     }
 
     function fullReset(silent = false) {
-        if(silent || confirm("Clear workspace? History will be preserved.")) {
+        if(silent || confirm("Clear all?")) {
             lockedAssignments.clear();
             document.getElementById('entryList').innerHTML = '';
             document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('entrySection').style.display = 'block';
             document.getElementById('matchTitle').value = '';
-            document.getElementById('footerUI').style.display = 'none';
+            document.getElementById('topControls').style.display = 'none';
         }
     }
 </script>
