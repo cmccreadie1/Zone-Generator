@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.8</title>
+    <title>Zone Generator v9.2.9</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -43,7 +43,7 @@
         .info-title { color: var(--accent); font-weight: 900; font-size: 10px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1.2px; }
         .info-step { font-size: 10px; line-height: 1.4; margin-bottom: 4px; color: #ffffff; }
 
-        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; }
+        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; margin-bottom: 20px;}
         .setup-bar label { color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
         
         input { background: #000000; border: 2px solid var(--border); color: #ffffff !important; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; }
@@ -52,8 +52,23 @@
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; position: relative; }
         
         .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
-        .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; }
-        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; cursor: pointer; }
+        
+        /* Haptic / Animated Buttons */
+        .btn-sm { 
+            padding: 12px; font-size: 12px; background: transparent; 
+            border: 2px solid var(--accent); color: var(--accent); flex: 1; 
+            font-weight: 900; border-radius: 10px; text-transform: uppercase; 
+            cursor: pointer; transition: all 0.1s ease;
+        }
+        .btn-sm:active { background: var(--accent); color: #000; transform: scale(0.95); }
+
+        .btn-draw-vibrant { 
+            background: linear-gradient(to right, #00c6ff, #0072ff); 
+            color: white; padding: 12px; flex: 2; font-size: 14px; 
+            border-radius: 10px; text-transform: uppercase; font-weight: 900; 
+            cursor: pointer; transition: transform 0.1s;
+        }
+        .btn-draw-vibrant:active { transform: scale(0.98); opacity: 0.9; }
         
         .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
@@ -62,7 +77,6 @@
         .btn-nav-action { padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        
         .pdf-zone-tag { flex: 1; text-align: center; padding: 10px 2px; border-radius: 8px; color: #000 !important; font-weight: 900; font-size: 10px; border: 1px solid rgba(0,0,0,0.2); -webkit-print-color-adjust: exact; }
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 9000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
@@ -98,11 +112,12 @@
     <div id="entrySection" class="no-print">
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
-            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members systematically isolated across zones on Day 1.</div>
-            <div class="info-step"><b>2. RNG PEGGING:</b> All assignments generated via high-entropy randomized shuffling.</div>
-            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends to prevent reshuffling.</div>
+            <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members isolated on Day 1.</div>
+            <div class="info-step"><b>2. RNG PEGGING:</b> High-entropy randomized shuffling.</div>
+            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends.</div>
         </div>
-        <div class="setup-bar">
+        
+        <div id="setupBar" class="setup-bar">
             <div style="margin-bottom: 20px;">
                 <label>COMPETITION NAME</label>
                 <input type="text" id="matchTitle" placeholder="Match Name...">
@@ -114,6 +129,7 @@
             </div>
             <button class="btn-init" onclick="bulkInit()">INITIALIZE GRID</button>
         </div>
+        
         <div id="entryList"></div>
     </div>
 
@@ -144,7 +160,9 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v928_archive';
+    const STORAGE_KEY = 'zonegen_v929_archive';
+
+    function triggerHaptic() { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(15); } }
 
     function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
 
@@ -167,13 +185,14 @@
         const list = document.getElementById('entryList'); list.innerHTML = '';
         const t = parseInt(document.getElementById('initTeams').value) || 0;
         const i = parseInt(document.getElementById('initIndivs').value) || 0;
-        for(let x=0; x<t; x++) addNewItem('team');
-        for(let y=0; y<i; y++) addNewItem('indiv');
+        for(let x=0; x<t; x++) addNewItem('team', '', [], true);
+        for(let y=0; y<i; y++) addNewItem('indiv', '', [], true);
         document.getElementById('topControls').style.display = 'flex';
         window.scrollBy({ top: 150, behavior: 'smooth' });
     }
 
-    function addNewItem(type, tName = "", names = []) {
+    function addNewItem(type, tName = "", names = [], silent = false) {
+        if(!silent) triggerHaptic();
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
         const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.8rem; cursor: pointer;">×</button>`;
@@ -185,6 +204,7 @@
         }
         list.appendChild(div);
         document.getElementById('topControls').style.display = 'flex';
+        if(!silent) div.scrollIntoView({ behavior: 'smooth' });
     }
 
     function runDraw() {
@@ -212,7 +232,6 @@
             cur += s;
         }
 
-        // 1. PINNED LOCKS
         all.forEach(a => {
             if(lockedAssignments.has(a.name)) {
                 const p = lockedAssignments.get(a.name);
@@ -222,7 +241,6 @@
             }
         });
 
-        // 2. TEAM ASSIGNMENT (NO COLLISION)
         Object.keys(teams).forEach(t => {
             let zoneIndices = Array.from({length: nZones}, (_, i) => i);
             shuffle(zoneIndices);
@@ -237,17 +255,14 @@
             });
         });
 
-        // 3. INDIVIDUAL ASSIGNMENT (THE "UNDEFINED" FIX)
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
                 let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx].p1Pool.length > 0);
                 if(availZ1.length > 0) {
                     const z1Idx = availZ1[Math.floor(Math.random() * availZ1.length)];
                     const z2Idx = (z1Idx + 1) % nZones;
-                    // Ensure Day 2 peg pool is checked
-                    if (map[z2Idx].p2Pool.length === 0) {
-                        // Fallback to any zone with a Day 2 peg
-                        const backupZ2 = Array.from({length: nZones}, (_, i) => i).find(idx => map[idx].p2Pool.length > 0);
+                    if (!map[z2Idx] || map[z2Idx].p2Pool.length === 0) {
+                        const backupZ2 = Array.from({length: nZones}, (_, i) => i).find(idx => map[idx] && map[idx].p2Pool.length > 0);
                         a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
                         a.z2 = backupZ2; a.p2 = map[backupZ2].p2Pool.pop();
                     } else {
@@ -272,10 +287,8 @@
     function renderResults(teams, indivs, map) {
         let keyHtml = `<div style="display:flex; gap:5px; margin-bottom:20px;">` + 
             map.map(m => `<div class="pdf-zone-tag" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        
         const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px; -webkit-print-color-adjust: exact;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
-        
         let html = `<div style="text-align:center; padding-bottom:15px;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + keyHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
@@ -301,9 +314,13 @@
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList'); list.innerHTML = '';
-        data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names));
+        data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names, true));
         lockedAssignments = new Map(Object.entries(data.locks));
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
+        
+        // Hide Setup bar when loading from archive
+        document.getElementById('setupBar').style.display = 'none';
+        
         runDraw(); 
         if(share) setTimeout(sharePDF, 500);
     }
@@ -324,9 +341,21 @@
         document.getElementById('entrySection').style.display = 'block'; 
         document.getElementById('resultsSection').style.display = 'none'; 
         document.getElementById('topControls').style.display = 'flex'; 
+        // Keep setup bar hidden if we are in an amendment flow
+        if (currentMatchID) document.getElementById('setupBar').style.display = 'none';
     }
     
-    function fullReset(silent = false) { if(silent || confirm("WIPE?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; document.getElementById('matchTitle').value = ''; document.getElementById('topControls').style.display = 'none'; } }
+    function fullReset(silent = false) { 
+        if(silent || confirm("WIPE?")) { 
+            lockedAssignments.clear(); currentMatchID = null; 
+            document.getElementById('entryList').innerHTML = ''; 
+            document.getElementById('resultsSection').style.display = 'none'; 
+            document.getElementById('entrySection').style.display = 'block'; 
+            document.getElementById('matchTitle').value = ''; 
+            document.getElementById('topControls').style.display = 'none';
+            document.getElementById('setupBar').style.display = 'block';
+        } 
+    }
 </script>
 </body>
 </html>
