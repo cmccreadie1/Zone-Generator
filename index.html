@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.0.3</title>
+    <title>Zone Generator v9.0.4</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,60 +19,52 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         
-        /* ENLARGED Fixed Header */
+        /* COMPACT Fixed Header */
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
-            background: #1e293b; border-bottom: 3px solid var(--accent);
-            padding: 16px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            background: #1e293b; border-bottom: 2px solid var(--accent);
+            padding: 10px 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
         }
-        .header-title { margin:0; font-size: 1.5rem; color:var(--accent); letter-spacing: 1px; font-weight: 900; }
-        .btn-history-large { background:var(--accent); color:var(--bg); padding:10px 20px; border-radius:8px; font-size:14px; font-weight: bold; }
+        .header-title { margin:0; font-size: 1.2rem; color:var(--accent); letter-spacing: 0.5px; font-weight: 800; }
+        .btn-history-compact { background:var(--accent); color:var(--bg); padding:6px 12px; border-radius:6px; font-size:12px; font-weight: bold; }
 
-        /* Adjusted Spacing for Content */
-        #entrySection { padding-top: 200px; }
-        #resultsSection { padding-top: 100px; }
+        /* OPTIMIZED Spacing */
+        #entrySection { padding-top: 130px; }
+        #resultsSection { padding-top: 80px; }
 
-        /* Info Graphic Style */
+        /* SLIM Infographic */
         .infographic { 
-            background: rgba(56, 189, 248, 0.1); 
-            border: 1px solid var(--accent); 
-            border-radius: 12px; 
-            padding: 20px; 
-            margin-bottom: 25px; 
+            background: rgba(56, 189, 248, 0.05); 
+            border: 1px solid rgba(56, 189, 248, 0.3); 
+            border-radius: 10px; 
+            padding: 12px 15px; 
+            margin-bottom: 15px; 
         }
-        .info-title { color: var(--accent); font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
-        .info-step { font-size: 13px; line-height: 1.5; margin-bottom: 10px; color: #cbd5e1; }
-        .info-step b { color: white; display: block; margin-bottom: 2px; }
+        .info-title { color: var(--accent); font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .info-step { font-size: 12px; line-height: 1.4; margin-bottom: 8px; color: #94a3b8; }
+        .info-step b { color: var(--text); display: inline; }
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 4000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
-        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; outline: none; }
-        .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; position: relative; }
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+        input { background: var(--bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 15px; outline: none; }
+        .entry-block { background: var(--card); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; position: relative; }
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         
-        .action-bar { display: flex; gap: 10px; margin-top: 12px; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; }
-        .btn-sm { padding: 14px; font-size: 13px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
-        .btn-draw-main { background: var(--success); color: white; padding: 14px; flex: 2; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .action-bar { display: flex; gap: 8px; margin-top: 8px; }
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; }
+        .btn-sm { padding: 12px; font-size: 12px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
+        .btn-draw-main { background: var(--success); color: white; padding: 12px; flex: 2; font-size: 13px; text-transform: uppercase; }
 
-        .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
-        .nav-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-nav { padding: 16px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-nav-share { background: var(--success); color: white; }
-        .btn-nav-amend { background: var(--warning); color: #000; }
+        .results-nav-bar { background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .nav-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-nav { padding: 14px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-        .beach-map { display: flex; gap: 4px; margin-bottom: 20px; }
-        .beach-zone { flex: 1; padding: 8px 2px; border-radius: 4px; text-align: center; color: #1e293b; font-size: 0.65rem; }
-        .beach-zone b { display: block; font-size: 0.9rem; }
-
-        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; page-break-inside: avoid; }
+        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; page-break-inside: avoid; }
         table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; }
-        .draw-heading { color: #0f172a !important; text-align: center; margin: 0; text-transform: uppercase; font-size: 1.1rem; }
-        .comp-name-sub { color: #0284c7 !important; font-weight: 700; display: block; font-size: 1.3rem; text-align: center; margin-bottom: 15px; }
+        td, th { padding: 6px; text-align: left; border-bottom: 1px solid #eee; font-size: 11px; }
 
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } #entrySection, #resultsSection { padding-top: 0; } }
     </style>
@@ -81,17 +73,17 @@
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; color:var(--accent);">Match Archive</h3>
-        <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.8rem;">×</button>
+        <h3 style="margin:0; color:var(--accent);">Archives</h3>
+        <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.5rem;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:12px; background:var(--danger); color:white;">Clear History</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:20px; padding:10px; background:var(--danger); color:white;">Clear History</button>
 </div>
 
 <div class="fixed-header no-print">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h1 class="header-title">ZONE GENERATOR</h1>
-        <button onclick="toggleHistory()" class="btn-history-large">HISTORY</button>
+        <button onclick="toggleHistory()" class="btn-history-compact">HISTORY</button>
     </div>
     <div class="action-bar" id="topControls" style="display:none;">
         <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
@@ -104,39 +96,39 @@
     <div id="entrySection" class="no-print">
         
         <div class="infographic">
-            <div class="info-title"><span>🛡️</span> THE INDEPENDENCE PROTOCOL</div>
-            <div class="info-step"><b>1. Team Isolation</b> Anglers from the same group are mathematically locked into different zones on Day 1.</div>
-            <div class="info-step"><b>2. Fair Rotation</b> All anglers automatically rotate to the next zone for Day 2 (e.g. Red → Yellow).</div>
-            <div class="info-step"><b>3. RNG Pegging</b> Specific pegs within zones are assigned via high-entropy Random Number Generation.</div>
+            <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
+            <div class="info-step"><b>1. Automated Parity:</b> Team members are mathematically isolated across zones on Day 1, with an automatic rotation to the next sequential zone for Day 2.</div>
+            <div class="info-step"><b>2. RNG Pegging:</b> Humans cannot influence pegging; all specific assignments are generated via high-entropy Random Number Generation.</div>
+            <div class="info-step"><b>3. Integrity Guard:</b> Latecomers do not trigger a reshuffle. The "Pinned" logic slots them into remaining gaps, protecting the original draw.</div>
         </div>
 
         <div class="setup-bar">
-            <div style="margin-bottom: 15px;">
-                <label style="font-size:10px; color:var(--accent)">MATCH NAME</label>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:9px; color:var(--accent)">MATCH NAME</label>
                 <input type="text" id="matchTitle" placeholder="e.g. Scottish Shore Match">
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div><label style="font-size:10px; color:var(--accent)">ZONES</label><input type="number" id="numZones" value="4"></div>
-                <div><label style="font-size:10px; color:var(--accent)">TEAMS</label><input type="number" id="initTeams" value="24"></div>
-                <div><label style="font-size:10px; color:var(--accent)">INDIVS</label><input type="number" id="initIndivs" value="2"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div><label style="font-size:9px; color:var(--accent)">ZONES</label><input type="number" id="numZones" value="4"></div>
+                <div><label style="font-size:9px; color:var(--accent)">TEAMS</label><input type="number" id="initTeams" value="24"></div>
+                <div><label style="font-size:9px; color:var(--accent)">INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:var(--bg); padding:15px; margin-top:15px; border-radius:8px; font-weight:bold; font-size: 14px;" onclick="bulkInit()">INITIALIZE ANGLER LIST</button>
+            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:12px; border-radius:6px; font-weight:bold; font-size: 13px;" onclick="bulkInit()">INITIALIZE ANGLER LIST</button>
         </div>
         <div id="entryList"></div>
     </div>
 
     <div id="resultsSection" style="display: none;">
         <div class="results-nav-bar no-print">
-            <div style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                <span id="displayTitle" style="font-weight:bold; color:var(--accent); font-size: 1.1rem;"></span>
+            <div style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                <span id="displayTitle" style="font-weight:bold; color:var(--accent); font-size: 1rem;"></span>
             </div>
             <div class="nav-btn-group">
-                <button onclick="sharePDF()" class="btn-nav btn-nav-share"><span>📄</span> SHARE PDF</button>
-                <button onclick="showEntry()" class="btn-nav btn-nav-amend"><span>✏️</span> AMEND</button>
+                <button onclick="sharePDF()" class="btn-nav" style="background:var(--success); color:white;"><span>📄</span> SHARE PDF</button>
+                <button onclick="showEntry()" class="btn-nav" style="background:var(--warning); color:#000;"><span>✏️</span> AMEND</button>
             </div>
         </div>
         <div id="resultsArea" style="background:white; padding:15px; border-radius:6px;"></div>
-        <button class="btn-draw-main no-print" style="width:100%; margin-top:25px; padding:20px; font-size: 16px;" onclick="archiveCurrent()">SAVE & FINALIZE MATCH</button>
+        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:18px; font-size: 15px;" onclick="archiveCurrent()">SAVE & FINALIZE MATCH</button>
     </div>
 </div>
 
@@ -152,7 +144,7 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v903_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v904_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item">
@@ -187,15 +179,15 @@
             blocks.push({ type, tName, names });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v903_archive') || '[]');
+        let archives = JSON.parse(localStorage.getItem('zonegen_v904_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         if (existingIdx > -1) archives[existingIdx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v903_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v904_archive', JSON.stringify(archives));
         alert("Match Saved."); fullReset(true);
     }
 
     function loadFromArchive(id, andShare = false) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v903_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v904_archive'));
         const data = archives.find(a => a.id === id);
         if (!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
@@ -221,7 +213,7 @@
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
         const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.5rem;padding:5px;">×</button>`;
         if(type === 'team') {
-            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
+            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:8px; border-bottom:1px solid var(--accent);">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
         } else {
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
@@ -276,12 +268,12 @@
     }
 
     function renderResults(teams, indivs, map) {
-        let mHtml = `<div class="beach-map" style="display:flex; gap:5px; margin-bottom:20px;">` + 
-            map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name}</b>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z1].toLowerCase()});">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z2].toLowerCase()});">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+        let mHtml = `<div class="beach-map" style="display:flex; gap:4px; margin-bottom:15px;">` + 
+            map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()}); flex:1; padding:8px 2px; text-align:center; border-radius:4px; font-size:10px;"><b>${m.name}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
+        const tbl = (data, title) => `<div class="res-block" style="background:white; color:#1e293b; border-radius:8px; margin-bottom:10px; padding:10px; border:1px solid #ddd;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z1].toLowerCase()}); padding:6px; font-size:11px;">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); border-left: 4pt solid var(--row-${zones[a.z2].toLowerCase()}); padding:6px; font-size:11px;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let matchTitle = document.getElementById('matchTitle').value || 'Official Draw';
-        let html = `<div style="text-align:center;"><h2 class="draw-heading">Official Draw Sheet</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
+        let html = `<div style="text-align:center; margin-bottom:10px;"><h2 style="margin:0; text-transform:uppercase; font-size:16px;">Official Draw Sheet</h2><span style="color:#0284c7; font-weight:bold; font-size:18px;">${matchTitle}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
