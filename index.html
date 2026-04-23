@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.1.3</title>
+    <title>Zone Generator v9.1.5</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -13,7 +14,7 @@
         :root {
             --bg: #020617; 
             --card: #1e293b; 
-            --text: #ffffff; /* Pure White Global */
+            --text: #ffffff; 
             --accent: #00d2ff; 
             --success: #22c55e; 
             --border: #475569;
@@ -33,68 +34,75 @@
             -webkit-tap-highlight-color: transparent; 
         }
 
-        /* FIXED HEADER */
+        /* CENTRAL ICON HEADER */
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
             background: rgba(15, 23, 42, 0.98); 
             backdrop-filter: blur(15px);
             border-bottom: 3px solid var(--accent);
-            padding: 12px 20px; 
+            padding: 10px 20px; 
             box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); 
-            display: flex; flex-direction: column; gap: 10px;
         }
 
-        .header-top { display: flex; justify-content: space-between; align-items: center; }
-        .header-title { margin:0; font-size: 1.4rem; color: var(--accent); font-weight: 900; text-shadow: 0 0 15px rgba(0, 210, 255, 0.7); }
-        .btn-history-vibrant { background: var(--warning); color: #000; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; border: none; }
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
 
-        #entrySection { padding-top: 150px; }
+        .app-logo {
+            width: 140px; /* Sized for visibility */
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.6));
+            margin-bottom: 5px;
+        }
+
+        .btn-history-vibrant { 
+            position: absolute; right: 0; top: 10px;
+            background: var(--warning); color: #000; 
+            padding: 8px 14px; border-radius: 8px; 
+            font-size: 11px; font-weight: 900; border: none; 
+        }
+
+        #entrySection { padding-top: 170px; }
         #resultsSection { padding-top: 100px; }
 
         /* INFOGRAPHIC */
         .infographic { 
             background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8));
             border: 2px solid var(--accent); 
-            border-radius: 12px; 
-            padding: 15px; 
-            margin-bottom: 20px; 
+            border-radius: 12px; padding: 15px; margin-bottom: 20px; 
         }
         .info-title { color: var(--accent); font-weight: 900; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; }
-        .info-step { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: #ffffff; } /* Force White */
+        .info-step { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: #ffffff; }
         .info-step b { color: var(--accent); }
 
-        /* DATA ENTRY BOXES - ALL WHITE TEXT */
+        /* INPUT FIELDS */
         .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); }
-        .setup-bar label { color: #ffffff !important; font-weight: 900 !important; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+        .setup-bar label { color: #ffffff !important; font-weight: 900 !important; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
         
         input { 
-            background: #000000; 
-            border: 2px solid var(--border); 
-            color: #ffffff !important; /* Pure White */
-            padding: 14px; 
-            border-radius: 10px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            font-size: 18px; 
-            font-weight: 700;
-            outline: none;
+            background: #000000; border: 2px solid var(--border); 
+            color: #ffffff !important; padding: 14px; 
+            border-radius: 10px; width: 100%; box-sizing: border-box; 
+            font-size: 18px; font-weight: 700; outline: none;
         }
-        input::placeholder { color: #ffffff !important; opacity: 0.7; font-weight: 400; }
-        input:focus { border-color: var(--accent); color: var(--accent) !important; }
+        input::placeholder { color: #ffffff; opacity: 0.5; }
+        input:focus { border-color: var(--accent); }
 
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; }
         
-        /* FOOTER ACTIONS */
-        .action-bar { display: flex; gap: 10px; }
-        .btn-sm { padding: 14px; font-size: 13px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
-        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 14px; flex: 2; font-size: 15px; border-radius: 10px; text-transform: uppercase; font-weight: 900; }
+        /* BUTTONS */
+        .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
+        .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
+        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; }
 
-        /* RESULTS */
+        /* RESULTS STYLE */
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
         .draw-heading { color: #020617; text-align: center; font-size: 1.5rem; font-weight: 900; }
         .comp-name-sub { color: #0072ff; font-weight: 800; font-size: 1.2rem; text-align: center; display: block; margin-bottom: 20px; }
 
-        /* ROW HIGHLIGHTS */
         .row-red-bg { background-color: #fee2e2 !important; border-left: 10px solid var(--row-red) !important; color: #000 !important; font-weight: 800; }
         .row-yellow-bg { background-color: #fef9c3 !important; border-left: 10px solid var(--row-yellow) !important; color: #000 !important; font-weight: 800; }
         .row-green-bg { background-color: #dcfce7 !important; border-left: 10px solid var(--row-green) !important; color: #000 !important; font-weight: 800; }
@@ -102,7 +110,6 @@
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 4000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
-        .history-item span { color: #ffffff !important; } /* Pure White for history text */
         
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
     </style>
@@ -111,33 +118,32 @@
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-        <h3 style="margin:0; color:var(--accent); font-weight: 900; letter-spacing: 1.5px;">ARCHIVE VAULT</h3>
+        <h3 style="margin:0; color:var(--accent); font-weight: 900;">VAULT</h3>
         <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2.5rem; border:none; cursor: pointer;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none; cursor: pointer;">CLEAR ENTIRE VAULT</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none;">WIPE ALL DATA</button>
 </div>
 
 <div class="fixed-header no-print">
-    <div class="header-top">
-        <h1 class="header-title">ZONE GENERATOR</h1>
-        <button onclick="toggleHistory()" class="btn-history-vibrant">ARCHIVE VAULT</button>
-    </div>
-    <div class="action-bar" id="topControls" style="display:none;">
-        <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
-        <button class="btn-sm" onclick="addNewItem('indiv')">+ INDIVIDUAL</button>
-        <button class="btn-draw-vibrant" onclick="runDraw()">PROCESS MATCH DRAW</button>
+    <div class="header-content">
+        <img src="icon.svg" alt="Zone Generator" class="app-logo">
+        <button onclick="toggleHistory()" class="btn-history-vibrant">VAULT</button>
+        <div class="action-bar" id="topControls" style="display:none;">
+            <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
+            <button class="btn-sm" onclick="addNewItem('indiv')">+ INDIV</button>
+            <button class="btn-draw-vibrant" onclick="runDraw()">PROCESS DRAW</button>
+        </div>
     </div>
 </div>
 
 <div class="container">
     <div id="entrySection" class="no-print">
-        
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
-            <div class="info-step"><b>1. AUTOMATED PARITY:</b> Team isolation across zones on Day 1 is mathematically guaranteed. Rotation to the next zone for Day 2 is hard-coded.</div>
-            <div class="info-step"><b>2. RNG PEGGING:</b> All specific peg assignments are generated via high-entropy randomization. Human bias is physically impossible.</div>
-            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Late arrivals are slotted into gaps. Existing assignments are "pinned," protecting the original integrity of the field.</div>
+            <div class="info-step"><b>1. AUTOMATED PARITY:</b> Team members are isolated across zones on Day 1. Rotation for Day 2 is hard-coded.</div>
+            <div class="info-step"><b>2. RNG PEGGING:</b> All peg assignments are generated via high-entropy randomization.</div>
+            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Late arrivals are slotted into gaps. Existing assignments are "pinned."</div>
         </div>
 
         <div class="setup-bar">
@@ -150,7 +156,7 @@
                 <div><label>TEAMS</label><input type="number" id="initTeams" value="24"></div>
                 <div><label>INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:#000; padding:18px; margin-top:25px; border-radius:12px; font-weight:900; font-size: 15px; border: none; cursor: pointer;" onclick="bulkInit()">INITIALIZE MATCH GRID</button>
+            <button style="width:100%; background:var(--accent); color:#000; padding:18px; margin-top:25px; border-radius:12px; font-weight:900; border: none;" onclick="bulkInit()">INITIALIZE GRID</button>
         </div>
         <div id="entryList"></div>
     </div>
@@ -158,15 +164,15 @@
     <div id="resultsSection" style="display: none;">
         <div class="results-nav-bar no-print" style="background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px;">
             <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 15px;">
-                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.3rem; text-transform:uppercase;"></span>
+                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.3rem;"></span>
             </div>
             <div class="nav-btn-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <button onclick="sharePDF()" class="btn-nav" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; cursor: pointer; padding: 16px;">📤 SHARE PDF</button>
-                <button onclick="showEntry()" class="btn-nav" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; cursor: pointer; padding: 16px;">✏️ AMEND</button>
+                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 16px;">📤 SHARE PDF</button>
+                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 16px;">✏️ AMEND</button>
             </div>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
+        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none;" onclick="archiveCurrent()">SAVE & ARCHIVE</button>
     </div>
 </div>
 
@@ -182,13 +188,13 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v913_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v915_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#ffffff; font-size:0.9rem; text-align: center;'>Vault is empty.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
             <div class="history-item" style="background:var(--card); border:2px solid var(--border); padding:18px; border-radius:12px; margin-bottom:12px; display: flex; align-items: center;">
                 <div onclick="loadFromArchive('${m.id}')" style="flex:1; cursor:pointer;">
                     <div style="color:var(--accent); font-weight:900; font-size:1.1rem;">${m.matchName}</div>
-                    <div style="font-size:0.8rem; color:#ffffff; margin-top:6px; font-weight: 700;">${m.timestamp}</div>
+                    <div style="font-size:0.8rem; color:#ffffff; margin-top:6px;">${m.timestamp}</div>
                 </div>
                 <div style="cursor:pointer; font-size:1.8rem; margin-left:15px;" onclick="loadFromArchive('${m.id}', true)">📄</div>
             </div>`).join('');
@@ -196,7 +202,7 @@
 
     async function sharePDF() {
         const element = document.getElementById('resultsArea');
-        const matchTitle = document.getElementById('matchTitle').value || 'MatchResults';
+        const matchTitle = document.getElementById('matchTitle').value || 'Results';
         const opt = { margin: 10, filename: `${matchTitle}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         try {
             const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
@@ -217,15 +223,15 @@
             blocks.push({ type, tName, names });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v913_archive') || '[]');
+        let archives = JSON.parse(localStorage.getItem('zonegen_v915_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         if (existingIdx > -1) archives[existingIdx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v913_archive', JSON.stringify(archives));
-        alert("Match Securely Archived."); fullReset(true);
+        localStorage.setItem('zonegen_v915_archive', JSON.stringify(archives));
+        alert("Saved to Vault."); fullReset(true);
     }
 
     function loadFromArchive(id, andShare = false) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v913_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v915_archive'));
         const data = archives.find(a => a.id === id);
         if (!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
@@ -249,12 +255,12 @@
     function addNewItem(type, tName = "", names = []) {
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
-        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:2rem;padding:5px; cursor: pointer;">×</button>`;
+        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:2rem;padding:5px;">×</button>`;
         if(type === 'team') {
             div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name..." value="${tName}" style="margin-bottom:12px; border-bottom:3px solid var(--accent); border-radius: 0;">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Name..." value="${names[i] || ""}">`).join('')}</div>`;
         } else {
-            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name..." value="${names[0] || ""}">`;
+            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Name..." value="${names[0] || ""}">`;
         }
         list.appendChild(div); document.getElementById('topControls').style.display = 'flex';
         const focusTarget = type === 'team' ? div.querySelector('.t-name') : div.querySelector('.a-name');
@@ -294,7 +300,7 @@
             }
         });
         renderResults(teams, indivs, map);
-        document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "MATCH RESULTS";
+        document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
     }
@@ -308,8 +314,8 @@
     function renderResults(teams, indivs, map) {
         let mHtml = `<div class="beach-map" style="display:flex; gap:8px; margin-bottom:20px;">` + 
             map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Angler</th><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Day 1</th><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td style="padding: 12px; border-bottom: 1px solid #000; font-size: 14px;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding: 12px; border-bottom: 3px solid #000;">Angler</th><th style="padding: 12px; border-bottom: 3px solid #000;">Day 1</th><th style="padding: 12px; border-bottom: 3px solid #000;">Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td style="padding: 12px; border-bottom: 1px solid #000;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let matchTitle = document.getElementById('matchTitle').value || 'OFFICIAL DRAW';
         let html = `<div style="text-align:center; padding-bottom:15px;"><h2 class="draw-heading">OFFICIAL DRAW SHEET</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
@@ -320,7 +326,7 @@
 
     function showEntry() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
     function fullReset(silent = false) {
-        if(silent || confirm("WIPE WORKSPACE?")) {
+        if(silent || confirm("WIPE DATA?")) {
             lockedAssignments.clear(); currentMatchID = null;
             document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('entrySection').style.display = 'block'; document.getElementById('matchTitle').value = '';
