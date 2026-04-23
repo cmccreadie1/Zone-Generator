@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.1</title>
+    <title>Zone Generator v9.2.2</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,39 +19,48 @@
         }
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); border-bottom: 3px solid var(--accent); padding: 10px 20px; box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); }
+        /* Fixed Header Fix: pointer-events: none on the wrapper, auto on the buttons */
+        .fixed-header { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 5000; 
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); 
+            border-bottom: 3px solid var(--accent); padding: 10px 20px; 
+            box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); 
+            min-height: 80px;
+        }
+
         .header-content { display: flex; flex-direction: column; align-items: center; position: relative; }
         .app-logo { width: 130px; filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.6)); margin-bottom: 5px; }
-        .btn-history-vibrant { position: absolute; right: 0; top: 5px; background: var(--warning); color: #000; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; border: none; }
         
-        #entrySection { padding-top: 165px; }
+        .btn-history-vibrant { 
+            position: absolute; right: 0; top: 5px; 
+            background: var(--warning); color: #000; padding: 8px 14px; 
+            border-radius: 8px; font-size: 11px; font-weight: 900; 
+            border: none; z-index: 6000; cursor: pointer;
+        }
+        
+        #entrySection { padding-top: 175px; }
         #resultsSection { padding-top: 100px; }
 
         .infographic { background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8)); border: 2px solid var(--accent); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .info-title { color: var(--accent); font-weight: 900; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; }
-        .info-step { font-size: 12px; line-height: 1.5; margin-bottom: 6px; color: #ffffff; }
-
-        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); }
+        
+        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; }
         .setup-bar label { color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
         
         input { background: #000000; border: 2px solid var(--border); color: #ffffff !important; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; }
-        input::placeholder { color: #ffffff; opacity: 0.5; }
         input:focus { border-color: var(--accent); color: var(--accent) !important; }
 
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; position: relative; }
-        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         
-        .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
-        .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
-        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; }
+        .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; pointer-events: auto; }
+        .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; }
+        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; cursor: pointer; }
+        
+        /* Initialization Button specific fix */
+        .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .row-red-bg { background-color: #fee2e2 !important; border-left: 10px solid var(--row-red) !important; color: #000 !important; font-weight: 800; }
-        .row-yellow-bg { background-color: #fef9c3 !important; border-left: 10px solid var(--row-yellow) !important; color: #000 !important; font-weight: 800; }
-        .row-green-bg { background-color: #dcfce7 !important; border-left: 10px solid var(--row-green) !important; color: #000 !important; font-weight: 800; }
-        .row-blue-bg { background-color: #dbeafe !important; border-left: 10px solid var(--row-blue) !important; color: #000 !important; font-weight: 800; }
-
-        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 4000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
+        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 9000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
@@ -65,7 +74,7 @@
         <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2.5rem; border:none; cursor: pointer;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none; cursor: pointer;">CLEAR VAULT</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none; cursor: pointer;">WIPE ALL DATA</button>
 </div>
 
 <div class="fixed-header no-print">
@@ -85,8 +94,8 @@
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
             <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members are systematically isolated across zones. It is mathematically impossible for teammates to share a zone on Day 1.</div>
-            <div class="info-step"><b>2. RNG PEGGING:</b> All peg assignments are generated via high-entropy randomization.</div>
-            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Late arrivals or amends do not reshuffle. Existing assignments are "pinned," protecting the original integrity of the field.</div>
+            <div class="info-step"><b>2. RNG PEGGING:</b> All assignments generated via randomized array shuffling.</div>
+            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Existing assignments are "pinned" during amends.</div>
         </div>
         <div class="setup-bar">
             <div style="margin-bottom: 20px;">
@@ -98,7 +107,7 @@
                 <div><label>TEAMS</label><input type="number" id="initTeams" value="24"></div>
                 <div><label>INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:#000; padding:18px; margin-top:25px; border-radius:12px; font-weight:900; border: none; cursor: pointer;" onclick="bulkInit()">INITIALIZE GRID</button>
+            <button class="btn-init" onclick="bulkInit()">INITIALIZE GRID</button>
         </div>
         <div id="entryList"></div>
     </div>
@@ -109,12 +118,12 @@
                 <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.3rem;"></span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 16px; cursor: pointer;">📤 SHARE PDF</button>
-                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 16px; cursor: pointer;">✏️ AMEND</button>
+                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 15px; cursor: pointer;">📤 SHARE PDF</button>
+                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 15px; cursor: pointer;">✏️ AMEND</button>
             </div>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
+        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE</button>
     </div>
 </div>
 
@@ -123,11 +132,21 @@
     let lockedAssignments = new Map();
     let currentMatchID = null;
 
-    function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
+    // Initialization check - ensure local storage is reachable
+    const STORAGE_KEY = 'zonegen_v922_archive';
+
+    function toggleHistory() { 
+        document.getElementById('historyDrawer').classList.toggle('open'); 
+        renderHistoryList(); 
+    }
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v921_archive') || '[]');
+        let archives = [];
+        try {
+            archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch(e) { archives = []; }
+        
         if(archives.length === 0) { list.innerHTML = "<p style='color:#ffffff; text-align:center;'>Vault is empty.</p>"; return; }
         list.innerHTML = archives.reverse().map(m => `
             <div class="history-item" style="background:var(--card); border:2px solid var(--border); padding:15px; border-radius:12px; margin-bottom:10px; display: flex; align-items: center;">
@@ -140,12 +159,15 @@
     }
 
     function bulkInit() {
-        const list = document.getElementById('entryList'); list.innerHTML = '';
+        const list = document.getElementById('entryList'); 
+        list.innerHTML = '';
         const t = parseInt(document.getElementById('initTeams').value) || 0;
         const i = parseInt(document.getElementById('initIndivs').value) || 0;
         for(let x=0; x<t; x++) addNewItem('team');
         for(let y=0; y<i; y++) addNewItem('indiv');
         document.getElementById('topControls').style.display = 'flex';
+        // Scroll slightly down to show the new items
+        window.scrollBy({ top: 150, behavior: 'smooth' });
     }
 
     function addNewItem(type, tName = "", names = []) {
@@ -154,21 +176,19 @@
         const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.8rem; cursor: pointer;">×</button>`;
         if(type === 'team') {
             div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name..." value="${tName}" style="margin-bottom:12px; border-bottom:3px solid var(--accent); border-radius: 0;">
-                <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Name..." value="${names[i] || ""}">`).join('')}</div>`;
+                <div class="angler-grid">${[0,1,2,3].map(idx => `<input type="text" class="a-name" placeholder="Name..." value="${names[idx] || ""}">`).join('')}</div>`;
         } else {
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Name..." value="${names[0] || ""}">`;
         }
         list.appendChild(div);
         document.getElementById('topControls').style.display = 'flex';
-        const focus = type === 'team' ? div.querySelector('.t-name') : div.querySelector('.a-name');
-        setTimeout(() => focus.focus(), 50);
     }
 
     function runDraw() {
         const nZones = parseInt(document.getElementById('numZones').value) || 1;
         let teams = {}; let indivs = []; let all = [];
         document.querySelectorAll('.entry-block').forEach(block => {
-            const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
+            const names = Array.from(block.querySelectorAll('.a-name')).map(inp => inp.value.trim()).filter(n => n);
             const tName = block.querySelector('.t-name')?.value || "Team";
             if(block.dataset.type === 'team' && names.length) {
                 teams[tName] = names.map(n => ({ name: n, team: tName })); all.push(...teams[tName]);
@@ -176,13 +196,13 @@
                 const a = { name: names[0], team: 'Individual' }; indivs.push(a); all.push(a);
             }
         });
-        if(!all.length) return alert("Add anglers first!");
+        if(!all.length) return alert("Add names first!");
 
         const base = Math.floor(all.length / nZones);
         const rem = all.length % nZones;
         let map = []; let cur = 1;
         for(let i=0; i<nZones; i++) {
-            let s = base + (1 if i < rem else 0);
+            let s = base + (i < rem ? 1 : 0);
             map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, p1Pool: [], p2Pool: [] });
             for(let p=cur; p<=cur+s-1; p++) { map[i].p1Pool.push(p); map[i].p2Pool.push(p); }
             shuffle(map[i].p1Pool); shuffle(map[i].p2Pool);
@@ -214,7 +234,7 @@
 
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
-                let avail = Array.from({length: nZones}, (_, i) => i).filter(i => map[i].p1Pool.length > 0);
+                let avail = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx].p1Pool.length > 0);
                 const z1Idx = avail[Math.floor(Math.random() * avail.length)];
                 const z2Idx = (z1Idx + 1) % nZones;
                 a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
@@ -227,6 +247,7 @@
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
+        window.scrollTo(0,0);
     }
 
     function shuffle(array) {
@@ -240,29 +261,32 @@
         let mHtml = `<div style="display:flex; gap:5px; margin-bottom:15px;">` + 
             map.map(m => `<div style="background-color: var(--row-${m.name.toLowerCase()}); flex:1; text-align:center; padding:10px; border-radius:8px; color:#000; font-weight:900; font-size:10px;"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
         const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px; border-bottom:1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px; border-bottom:1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+            data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px; border-bottom: 1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px; border-bottom: 1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let html = `<div style="text-align:center; padding-bottom:15px;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
-        window.scrollTo(0,0);
     }
 
     function archiveCurrent() {
         const blocks = [];
         document.querySelectorAll('.entry-block').forEach(block => {
-            blocks.push({ type: block.dataset.type, tName: block.querySelector('.t-name')?.value || "", names: Array.from(block.querySelectorAll('.a-name')).map(i => i.value) });
+            blocks.push({ type: block.dataset.type, tName: block.querySelector('.t-name')?.value || "", names: Array.from(block.querySelectorAll('.a-name')).map(inp => inp.value) });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: document.getElementById('matchTitle').value || "Match", timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v921_archive') || '[]');
+        let archives = [];
+        try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v921_archive', JSON.stringify(archives));
-        alert("Saved."); fullReset(true);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(archives));
+        alert("Saved to Vault."); fullReset(true);
     }
 
     function loadFromArchive(id, share = false) {
-        const data = JSON.parse(localStorage.getItem('zonegen_v921_archive')).find(a => a.id === id);
+        let archives = [];
+        try { archives = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) {}
+        const data = archives.find(a => a.id === id);
+        if(!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList'); list.innerHTML = '';
@@ -275,11 +299,23 @@
 
     function sharePDF() {
         const title = document.getElementById('matchTitle').value || 'Results';
-        html2pdf().set({ margin: 10, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('resultsArea')).save();
+        const element = document.getElementById('resultsArea');
+        html2pdf().set({ margin: 10, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save();
     }
 
     function showEntry() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
-    function fullReset(silent = false) { if(silent || confirm("WIPE?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; } }
+    
+    function fullReset(silent = false) { 
+        if(silent || confirm("WIPE?")) { 
+            lockedAssignments.clear(); 
+            currentMatchID = null; 
+            document.getElementById('entryList').innerHTML = ''; 
+            document.getElementById('resultsSection').style.display = 'none'; 
+            document.getElementById('entrySection').style.display = 'block'; 
+            document.getElementById('matchTitle').value = '';
+            document.getElementById('topControls').style.display = 'none';
+        } 
+    }
 </script>
 </body>
 </html>
