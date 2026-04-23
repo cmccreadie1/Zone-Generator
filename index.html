@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.4</title>
+    <title>Zone Generator v9.2.5</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,7 +24,6 @@
             background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); 
             border-bottom: 3px solid var(--accent); padding: 10px 20px; 
             box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); 
-            min-height: 80px;
         }
 
         .header-content { display: flex; flex-direction: column; align-items: center; position: relative; }
@@ -38,12 +37,12 @@
         }
         
         #entrySection { padding-top: 175px; }
-        #resultsSection { padding-top: 100px; }
+        /* Reduced padding for results because the thick header buttons will be hidden */
+        #resultsSection { padding-top: 110px; }
 
         .infographic { background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8)); border: 2px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 20px; }
         .info-title { color: var(--accent); font-weight: 900; font-size: 10px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1.2px; }
         .info-step { font-size: 10px; line-height: 1.4; margin-bottom: 4px; color: #ffffff; }
-        .info-step b { color: var(--accent); }
 
         .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; }
         .setup-bar label { color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
@@ -53,14 +52,18 @@
 
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; position: relative; }
         
-        .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; pointer-events: auto; }
+        .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
         .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; }
         .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; cursor: pointer; }
         
         .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
-        /* Results Control Styling */
-        .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px; }
+        /* Results Controls - Ensure these are always visible and clickable */
+        .results-nav-bar { 
+            background: var(--card); padding: 15px; border-radius: 12px; 
+            border: 2px solid var(--border); margin-bottom: 20px;
+            position: relative; z-index: 10;
+        }
         .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .btn-nav-action { padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         
@@ -145,7 +148,7 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v924_archive';
+    const STORAGE_KEY = 'zonegen_v925_archive';
 
     function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
 
@@ -251,6 +254,9 @@
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
+        
+        // Contextual Header Fix: Hide the data entry action bar
+        document.getElementById('topControls').style.display = 'none';
         window.scrollTo(0,0);
     }
 
@@ -289,7 +295,8 @@
         data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names));
         lockedAssignments = new Map(Object.entries(data.locks));
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
-        runDraw(); if(share) setTimeout(sharePDF, 500);
+        runDraw(); 
+        if(share) setTimeout(sharePDF, 500);
     }
 
     async function sharePDF() {
@@ -304,7 +311,12 @@
         } catch (err) { html2pdf().from(element).save(); }
     }
 
-    function showEntry() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
+    function showEntry() { 
+        document.getElementById('entrySection').style.display = 'block'; 
+        document.getElementById('resultsSection').style.display = 'none'; 
+        document.getElementById('topControls').style.display = 'flex'; // Restore entry buttons
+    }
+    
     function fullReset(silent = false) { if(silent || confirm("WIPE?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; document.getElementById('matchTitle').value = ''; document.getElementById('topControls').style.display = 'none'; } }
 </script>
 </body>
