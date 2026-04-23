@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.1.1</title>
+    <title>Zone Generator v9.1.2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,11 +13,11 @@
         :root {
             --bg: #020617; 
             --card: #1e293b; 
-            --text: #ffffff; /* Pure White for maximum readability */
-            --subtext: #e2e8f0; /* Bright Silver */
+            --text: #ffffff; 
+            --subtext: #f1f5f9; /* Even brighter silver-white */
             --accent: #00d2ff; 
             --success: #22c55e; 
-            --border: #334155;
+            --border: #475569; /* Brighter border */
             --warning: #fbbf24; 
             --danger: #ef4444;
             --row-red: #ff4d4d; 
@@ -38,16 +38,16 @@
         /* FIXED HEADER */
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
-            background: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(12px);
-            border-bottom: 2px solid var(--accent);
+            background: rgba(15, 23, 42, 0.98); 
+            backdrop-filter: blur(15px);
+            border-bottom: 3px solid var(--accent);
             padding: 12px 20px; 
-            box-shadow: 0 4px 30px rgba(0, 210, 255, 0.3); 
+            box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); 
             display: flex; flex-direction: column; gap: 10px;
         }
 
         .header-top { display: flex; justify-content: space-between; align-items: center; }
-        .header-title { margin:0; font-size: 1.4rem; color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(0, 210, 255, 0.6); }
+        .header-title { margin:0; font-size: 1.4rem; color: var(--accent); font-weight: 900; text-shadow: 0 0 15px rgba(0, 210, 255, 0.7); }
         .btn-history-vibrant { background: var(--warning); color: #000; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; border: none; }
 
         #entrySection { padding-top: 150px; }
@@ -55,45 +55,62 @@
 
         /* INFOGRAPHIC */
         .infographic { 
-            background: linear-gradient(145deg, rgba(0, 210, 255, 0.15), rgba(15, 23, 42, 0.6));
-            border: 1px solid var(--accent); 
+            background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8));
+            border: 2px solid var(--accent); 
             border-radius: 12px; 
             padding: 15px; 
             margin-bottom: 20px; 
-            box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
         }
-        .info-title { color: var(--accent); font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; }
-        .info-step { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: var(--subtext); }
-        .info-step b { color: #ffffff; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+        .info-title { color: var(--accent); font-weight: 900; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; text-shadow: 0 0 8px rgba(0,210,255,0.5); }
+        .info-step { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: #ffffff; }
+        .info-step b { color: var(--accent); text-shadow: 0 0 5px rgba(0, 210, 255, 0.4); }
 
-        /* ENTRY ELEMENTS */
-        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); }
-        .setup-bar label { color: var(--accent); font-weight: 800; text-shadow: 0 0 5px rgba(0, 210, 255, 0.3); }
+        /* DATA SELECTION BOXES */
+        .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); }
+        .setup-bar label { color: var(--accent) !important; font-weight: 900 !important; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(0, 210, 255, 0.5); display: block; margin-bottom: 6px; }
         
-        input { background: #080c14; border: 1px solid var(--border); color: #ffffff; padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        input::placeholder { color: #64748b; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 210, 255, 0.5); outline: none; background: #0f172a; }
+        input { 
+            background: #000000; 
+            border: 2px solid var(--border); 
+            color: #ffffff !important; /* Pure White Text */
+            padding: 14px; 
+            border-radius: 10px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            font-size: 18px; /* Larger font for entry */
+            font-weight: 700;
+            transition: 0.2s; 
+        }
+        input::placeholder { color: #94a3b8; font-weight: 400; }
+        input:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.6); 
+            outline: none; 
+            background: #080c14;
+            color: var(--accent) !important; /* Glows blue when active */
+        }
 
-        .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); padding: 15px; }
+        .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
         .action-bar { display: flex; gap: 10px; }
-        .btn-sm { padding: 14px; font-size: 12px; background: transparent; border: 2px dashed var(--accent); color: var(--accent); flex: 1; font-weight: 800; border-radius: 10px; text-transform: uppercase; }
-        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 14px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(0, 114, 255, 0.5); font-weight: 900; }
+        .btn-sm { padding: 14px; font-size: 13px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 14px; flex: 2; font-size: 15px; border-radius: 10px; text-transform: uppercase; box-shadow: 0 4px 20px rgba(0, 114, 255, 0.6); font-weight: 900; letter-spacing: 1px; }
 
         /* RESULTS ELEMENTS */
-        .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; border: none; box-shadow: 0 8px 16px rgba(0,0,0,0.2); overflow: hidden; }
-        .draw-heading { color: #020617; text-align: center; font-size: 1.4rem; margin-bottom: 5px; font-weight: 900; }
-        .comp-name-sub { color: #0072ff; font-weight: 800; font-size: 1.1rem; text-align: center; display: block; margin-bottom: 20px; text-transform: uppercase; }
+        .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.3); overflow: hidden; }
+        .draw-heading { color: #020617; text-align: center; font-size: 1.5rem; margin-bottom: 5px; font-weight: 900; }
+        .comp-name-sub { color: #0072ff; font-weight: 800; font-size: 1.2rem; text-align: center; display: block; margin-bottom: 20px; text-transform: uppercase; }
 
-        .beach-zone { flex: 1; padding: 12px 4px; border-radius: 8px; text-align: center; color: #000; font-weight: 900; box-shadow: 0 4px 0 rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.1); }
+        .beach-zone { flex: 1; padding: 14px 4px; border-radius: 8px; text-align: center; color: #000; font-weight: 900; border: 2px solid rgba(0,0,0,0.2); }
 
-        /* ROW HIGHLIGHTS (Results) */
-        .row-red-bg { background-color: #fee2e2 !important; border-left: 8px solid var(--row-red) !important; color: #000 !important; font-weight: 700; }
-        .row-yellow-bg { background-color: #fef9c3 !important; border-left: 8px solid var(--row-yellow) !important; color: #000 !important; font-weight: 700; }
-        .row-green-bg { background-color: #dcfce7 !important; border-left: 8px solid var(--row-green) !important; color: #000 !important; font-weight: 700; }
-        .row-blue-bg { background-color: #dbeafe !important; border-left: 8px solid var(--row-blue) !important; color: #000 !important; font-weight: 700; }
+        /* ROW HIGHLIGHTS */
+        .row-red-bg { background-color: #fee2e2 !important; border-left: 10px solid var(--row-red) !important; color: #000 !important; font-weight: 800; font-size: 13px; }
+        .row-yellow-bg { background-color: #fef9c3 !important; border-left: 10px solid var(--row-yellow) !important; color: #000 !important; font-weight: 800; font-size: 13px; }
+        .row-green-bg { background-color: #dcfce7 !important; border-left: 10px solid var(--row-green) !important; color: #000 !important; font-weight: 800; font-size: 13px; }
+        .row-blue-bg { background-color: #dbeafe !important; border-left: 10px solid var(--row-blue) !important; color: #000 !important; font-weight: 800; font-size: 13px; }
 
-        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #0f172a; border-left: 3px solid var(--accent); z-index: 4000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; box-sizing: border-box; overflow-y: auto; }
+        #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 4000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
         
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
@@ -103,17 +120,17 @@
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-        <h3 style="margin:0; color:var(--accent); font-weight: 900; letter-spacing: 1px;">ARCHIVE VAULT</h3>
-        <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2rem; border:none; cursor: pointer;">×</button>
+        <h3 style="margin:0; color:var(--accent); font-weight: 900; letter-spacing: 1.5px;">ARCHIVE VAULT</h3>
+        <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2.5rem; border:none; cursor: pointer;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:15px; background:var(--danger); color:white; border-radius:8px; font-weight:900; border: none; cursor: pointer;">CLEAR ENTIRE VAULT</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none; cursor: pointer; letter-spacing: 1px;">CLEAR ENTIRE VAULT</button>
 </div>
 
 <div class="fixed-header no-print">
     <div class="header-top">
         <h1 class="header-title">ZONE GENERATOR</h1>
-        <button onclick="toggleHistory()" class="btn-history-vibrant">HISTORY ARCHIVE</button>
+        <button onclick="toggleHistory()" class="btn-history-vibrant">ARCHIVE VAULT</button>
     </div>
     <div class="action-bar" id="topControls" style="display:none;">
         <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
@@ -133,32 +150,32 @@
         </div>
 
         <div class="setup-bar">
-            <div style="margin-bottom: 15px;">
-                <label style="font-size:10px; text-transform: uppercase; letter-spacing:1px; display: block; margin-bottom: 5px;">COMPETITION NAME</label>
+            <div style="margin-bottom: 20px;">
+                <label>COMPETITION NAME</label>
                 <input type="text" id="matchTitle" placeholder="e.g. Scottish Shore Open">
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                <div><label style="font-size:9px; display: block; margin-bottom: 4px;">ZONES</label><input type="number" id="numZones" value="4"></div>
-                <div><label style="font-size:9px; display: block; margin-bottom: 4px;">TEAMS</label><input type="number" id="initTeams" value="24"></div>
-                <div><label style="font-size:9px; display: block; margin-bottom: 4px;">INDIVS</label><input type="number" id="initIndivs" value="2"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div><label>ZONES</label><input type="number" id="numZones" value="4"></div>
+                <div><label>TEAMS</label><input type="number" id="initTeams" value="24"></div>
+                <div><label>INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:#000; padding:16px; margin-top:20px; border-radius:10px; font-weight:900; font-size: 14px; border: none; cursor: pointer;" onclick="bulkInit()">INITIALIZE MATCH GRID</button>
+            <button style="width:100%; background:var(--accent); color:#000; padding:18px; margin-top:25px; border-radius:12px; font-weight:900; font-size: 15px; border: none; cursor: pointer; letter-spacing: 1px;" onclick="bulkInit()">INITIALIZE MATCH GRID</button>
         </div>
         <div id="entryList"></div>
     </div>
 
     <div id="resultsSection" style="display: none;">
-        <div class="results-nav-bar no-print">
-            <div style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                <span id="displayTitle" style="font-weight:900; color:var(--accent); font-size: 1.2rem; text-transform:uppercase; text-shadow: 0 0 8px rgba(0,210,255,0.3);"></span>
+        <div class="results-nav-bar no-print" style="background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px;">
+            <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 15px;">
+                <span id="displayTitle" style="font-weight:900; color:var(--accent); font-size: 1.3rem; text-transform:uppercase; text-shadow: 0 0 10px rgba(0,210,255,0.4);"></span>
             </div>
-            <div class="nav-btn-group">
-                <button onclick="sharePDF()" class="btn-nav" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:900; cursor: pointer;">📤 SHARE PDF RESULTS</button>
-                <button onclick="showEntry()" class="btn-nav" style="background:var(--warning); color:#000; border:none; border-radius:8px; font-weight:900; cursor: pointer;">✏️ AMEND ENTRIES</button>
+            <div class="nav-btn-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button onclick="sharePDF()" class="btn-nav" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; cursor: pointer; padding: 16px;">📤 SHARE PDF</button>
+                <button onclick="showEntry()" class="btn-nav" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; cursor: pointer; padding: 16px;">✏️ AMEND</button>
             </div>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:22px; font-size: 16px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
+        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
     </div>
 </div>
 
@@ -174,15 +191,15 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v911_archive') || '[]');
-        if(archives.length === 0) { list.innerHTML = "<p style='color:#94a3b8; font-size:0.9rem;'>Archive Vault is empty.</p>"; return; }
+        const archives = JSON.parse(localStorage.getItem('zonegen_v912_archive') || '[]');
+        if(archives.length === 0) { list.innerHTML = "<p style='color:#94a3b8; font-size:0.9rem; text-align: center;'>Vault is empty.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
-            <div class="history-item" style="background:var(--card); border:1px solid var(--border); padding:15px; border-radius:10px; margin-bottom:10px; display: flex; align-items: center;">
+            <div class="history-item" style="background:var(--card); border:2px solid var(--border); padding:18px; border-radius:12px; margin-bottom:12px; display: flex; align-items: center;">
                 <div onclick="loadFromArchive('${m.id}')" style="flex:1; cursor:pointer;">
-                    <div style="color:var(--accent); font-weight:900; font-size:1rem;">${m.matchName}</div>
-                    <div style="font-size:0.75rem; color:#ffffff; margin-top:5px; opacity: 0.8;">${m.timestamp}</div>
+                    <div style="color:var(--accent); font-weight:900; font-size:1.1rem; letter-spacing: 0.5px;">${m.matchName}</div>
+                    <div style="font-size:0.8rem; color:#ffffff; margin-top:6px; font-weight: 600;">${m.timestamp}</div>
                 </div>
-                <div style="cursor:pointer; font-size:1.5rem; margin-left:15px;" onclick="loadFromArchive('${m.id}', true)">📄</div>
+                <div style="cursor:pointer; font-size:1.8rem; margin-left:15px;" onclick="loadFromArchive('${m.id}', true)">📄</div>
             </div>`).join('');
     }
 
@@ -196,7 +213,7 @@
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Draw Results', text: `Official Results: ${matchTitle}` });
             } else { html2pdf().set(opt).from(element).save(); }
-        } catch (err) { alert("Mobile sharing error. Downloading instead."); html2pdf().set(opt).from(element).save(); }
+        } catch (err) { alert("Sharing failed. Downloading instead."); html2pdf().set(opt).from(element).save(); }
     }
 
     function archiveCurrent() {
@@ -209,15 +226,15 @@
             blocks.push({ type, tName, names });
         });
         const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v911_archive') || '[]');
+        let archives = JSON.parse(localStorage.getItem('zonegen_v912_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         if (existingIdx > -1) archives[existingIdx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v911_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v912_archive', JSON.stringify(archives));
         alert("Match Securely Archived."); fullReset(true);
     }
 
     function loadFromArchive(id, andShare = false) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v911_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v912_archive'));
         const data = archives.find(a => a.id === id);
         if (!data) return;
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
@@ -241,9 +258,9 @@
     function addNewItem(type, tName = "", names = []) {
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
-        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.5rem;padding:5px; cursor: pointer;">×</button>`;
+        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:2rem;padding:5px; cursor: pointer;">×</button>`;
         if(type === 'team') {
-            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:2px solid var(--accent);">
+            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:12px; border-bottom:3px solid var(--accent); border-radius: 0;">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
         } else {
             div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Angler Name" value="${names[0] || ""}">`;
@@ -298,12 +315,12 @@
     }
 
     function renderResults(teams, indivs, map) {
-        let mHtml = `<div class="beach-map" style="display:flex; gap:6px; margin-bottom:20px;">` + 
+        let mHtml = `<div class="beach-map" style="display:flex; gap:8px; margin-bottom:20px;">` + 
             map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        const tbl = (data, title) => `<div class="res-block" style="border: 1px solid #000;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding: 10px; border-bottom: 2px solid #000;">Angler</th><th style="padding: 10px; border-bottom: 2px solid #000;">Day 1</th><th style="padding: 10px; border-bottom: 2px solid #000;">Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px; font-weight:bold;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px; font-weight:bold;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Angler</th><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Day 1</th><th style="padding: 12px; border-bottom: 3px solid #000; font-size: 14px;">Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td style="padding: 12px; border-bottom: 1px solid #000; font-size: 14px;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:12px; border-bottom: 1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let matchTitle = document.getElementById('matchTitle').value || 'OFFICIAL DRAW';
-        let html = `<div style="text-align:center; padding-bottom:10px;"><h2 class="draw-heading">OFFICIAL DRAW SHEET</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
+        let html = `<div style="text-align:center; padding-bottom:15px;"><h2 class="draw-heading">OFFICIAL DRAW SHEET</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
