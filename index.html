@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v8.9.5</title>
+    <title>Zone Generator v8.9.7</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,28 +17,19 @@
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        /* FIXED Control Header - Guaranteed to stay at top */
         .fixed-header { 
-            position: fixed; 
-            top: 0; 
-            left: 0;
-            right: 0;
-            z-index: 3000; 
-            background: #1e293b; 
-            border-bottom: 2px solid var(--accent);
-            padding: 10px 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
+            background: #1e293b; border-bottom: 2px solid var(--accent);
+            padding: 10px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         .container { max-width: 950px; margin: 0 auto; padding: 15px; }
-        
-        /* Padding to prevent content being hidden under the fixed header */
         #entrySection { padding-top: 170px; }
-        #resultsSection { padding-top: 10px; }
+        #resultsSection { padding-top: 20px; }
 
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: var(--card); border-left: 2px solid var(--accent); z-index: 4000; transition: 0.3s; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
-        .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
+        .history-item { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
         .setup-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
         .input-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
@@ -52,7 +43,6 @@
         .btn-sm { padding: 12px; font-size: 12px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
         .btn-draw-main { background: var(--success); color: white; padding: 12px; flex: 2; font-size: 14px; text-transform: uppercase; }
 
-        /* Beach Map / Shoreline */
         .beach-map { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; }
         .beach-zone { flex: 1; min-width: 80px; padding: 10px 5px; border-radius: 6px; text-align: center; color: #1e293b; font-size: 0.8rem; }
         .beach-zone b { display: block; font-size: 1rem; }
@@ -61,14 +51,16 @@
         table { width: 100%; border-collapse: collapse; }
         td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
 
+        .draw-heading { color: #0f172a; text-align: center; margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .comp-name-sub { color: var(--accent); font-weight: 700; display: block; font-size: 1.4rem; margin-top: 5px; text-align: center; }
+
         .row-red { background-color: var(--row-red) !important; }
         .row-yellow { background-color: var(--row-yellow) !important; }
         .row-green { background-color: var(--row-green) !important; }
         .row-blue { background-color: var(--row-blue) !important; }
-        .row-orange { background-color: var(--row-orange) !important; }
-        .row-purple { background-color: var(--row-purple) !important; }
-        .row-silver { background-color: var(--row-silver) !important; }
-        .row-gold { background-color: var(--row-gold) !important; }
+
+        /* Share Icon Styling */
+        .share-icon { font-size: 18px; color: var(--accent); padding: 5px; cursor: pointer; }
 
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } #entrySection { padding-top: 0; } }
     </style>
@@ -89,7 +81,6 @@
         <h1 style="margin:0; font-size: 1.1rem; color:var(--accent);">ZONE GENERATOR</h1>
         <button onclick="toggleHistory()" style="background:var(--accent); color:var(--bg); padding:4px 10px; border-radius:4px; font-size:10px;">HISTORY</button>
     </div>
-    
     <div class="action-bar" id="topControls" style="display:none;">
         <button class="btn-sm" onclick="addNewItem('team')">+ TEAM</button>
         <button class="btn-sm" onclick="addNewItem('indiv')">+ INDIV</button>
@@ -102,7 +93,7 @@
         <div class="setup-bar">
             <div class="input-group" style="margin-bottom: 15px;">
                 <label>Competition Name</label>
-                <input type="text" id="matchTitle" placeholder="e.g. Shore Match Rd 1">
+                <input type="text" id="matchTitle" placeholder="e.g. Scottish Shore Match">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div class="input-group"><label>Zones</label><input type="number" id="numZones" value="4"></div>
@@ -117,7 +108,10 @@
     <div id="resultsSection" style="display: none;">
         <div style="background:var(--card); padding:12px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
             <span id="displayTitle" style="font-weight:bold; color:var(--accent);"></span>
-            <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">AMEND DRAW</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="shareResults()" style="background:var(--accent); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">SHARE</button>
+                <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">AMEND</button>
+            </div>
         </div>
         <div id="resultsArea"></div>
         <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveAndClear()">COMPLETE & FILE MATCH</button>
@@ -135,13 +129,40 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v897_archive') || '[]');
         if(archives.length === 0) { list.innerHTML = "<p style='color:#64748b; font-size:0.8rem;'>No saved draws.</p>"; return; }
         list.innerHTML = archives.reverse().map((m, i) => `
-            <div class="history-item" onclick="loadFromArchive(${archives.length - 1 - i})">
-                <div style="color:var(--accent); font-weight:bold;">${m.matchName}</div>
-                <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">${m.timestamp}</div>
+            <div class="history-item">
+                <div onclick="loadFromArchive(${archives.length - 1 - i})" style="flex:1; cursor:pointer;">
+                    <div style="color:var(--accent); font-weight:bold;">${m.matchName}</div>
+                    <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">${m.timestamp}</div>
+                </div>
+                <div class="share-icon" onclick="shareSpecificMatch('${m.matchName}')">📤</div>
             </div>`).join('');
+    }
+
+    function shareResults() {
+        const matchTitle = document.getElementById('matchTitle').value || 'Shore Match';
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Zone Generator Results',
+                text: `Zone Generator: ${matchTitle}\n\nThe draw is now complete. View results here:`,
+                url: url
+            }).catch(console.error);
+        } else {
+            alert(`Share link copied: ${url}`);
+        }
+    }
+
+    function shareSpecificMatch(title) {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Zone Generator History',
+                text: `Archive Draw: ${title}\nResults are available on the Zone Generator app.`,
+                url: window.location.href
+            }).catch(console.error);
+        }
     }
 
     function archiveAndClear() {
@@ -162,15 +183,15 @@
             locks: Object.fromEntries(lockedAssignments)
         };
 
-        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive') || '[]');
+        const archives = JSON.parse(localStorage.getItem('zonegen_v897_archive') || '[]');
         archives.push(archiveData);
-        localStorage.setItem('zonegen_v895_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v897_archive', JSON.stringify(archives));
         alert("Match Filed in History.");
         fullReset(true);
     }
 
     function loadFromArchive(idx) {
-        const archives = JSON.parse(localStorage.getItem('zonegen_v895_archive'));
+        const archives = JSON.parse(localStorage.getItem('zonegen_v897_archive'));
         const data = archives[idx];
         if(!confirm(`Restore "${data.matchName}"?`)) return;
         document.getElementById('matchTitle').value = data.matchName;
@@ -236,7 +257,6 @@
             cur += s;
         }
 
-        // Persistence Logic
         all.forEach(a => {
             if(lockedAssignments.has(a.name)) {
                 const p = lockedAssignments.get(a.name);
@@ -261,6 +281,13 @@
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('topControls').style.display = 'none';
+        
+        // Pop up the share option immediately
+        setTimeout(() => {
+            if(confirm("Draw complete! Would you like to share the results now?")) {
+                shareResults();
+            }
+        }, 500);
     }
 
     function getPeg(z, k) {
@@ -271,12 +298,18 @@
 
     function renderResults(teams, indivs, map) {
         let mHtml = `<div class="beach-map no-print">` + 
-            map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><small>${m.name}</small><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
+            map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><small style="font-weight:bold">${m.name}</small><b>${m.start}-${m.end}</b></div>`).join('') + `</div>`;
         
         const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
 
-        let html = `<h2 style="text-align:center; color:#1e293b; margin-top:0;">MATCH DRAW: ${document.getElementById('matchTitle').value || 'OFFICIAL'}</h2>` + mHtml;
+        let matchTitle = document.getElementById('matchTitle').value || 'OFFICIAL DRAW';
+        let html = `
+            <div style="margin-bottom:20px;">
+                <h2 class="draw-heading">Official Draw Sheet</h2>
+                <span class="comp-name-sub">${matchTitle}</span>
+            </div>` + mHtml;
+
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
