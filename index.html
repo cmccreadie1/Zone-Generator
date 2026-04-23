@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.0</title>
+    <title>Zone Generator v9.2.1</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,31 +17,43 @@
             --warning: #fbbf24; --danger: #ef4444;
             --row-red: #ff4d4d; --row-yellow: #ffeb3b; --row-green: #4ade80; --row-blue: #3b82f6;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); border-bottom: 3px solid var(--accent); padding: 10px 20px; box-shadow: 0 4px 30px rgba(0, 210, 255, 0.4); }
         .header-content { display: flex; flex-direction: column; align-items: center; position: relative; }
         .app-logo { width: 130px; filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.6)); margin-bottom: 5px; }
         .btn-history-vibrant { position: absolute; right: 0; top: 5px; background: var(--warning); color: #000; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; border: none; }
-        #entrySection { padding-top: 160px; }
+        
+        #entrySection { padding-top: 165px; }
         #resultsSection { padding-top: 100px; }
+
         .infographic { background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8)); border: 2px solid var(--accent); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .info-title { color: var(--accent); font-weight: 900; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; }
-        .info-step { font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
+        .info-step { font-size: 12px; line-height: 1.5; margin-bottom: 6px; color: #ffffff; }
+
         .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); }
         .setup-bar label { color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
-        input { background: #000000; border: 2px solid var(--border); color: #ffffff; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; }
-        input:focus { border-color: var(--accent); color: var(--accent); }
+        
+        input { background: #000000; border: 2px solid var(--border); color: #ffffff !important; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; }
+        input::placeholder { color: #ffffff; opacity: 0.5; }
+        input:focus { border-color: var(--accent); color: var(--accent) !important; }
+
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; position: relative; }
+        .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        
         .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
         .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; }
         .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; }
+
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .row-red-bg { background-color: #fee2e2 !important; border-left: 10px solid var(--row-red) !important; color: #000; font-weight: 800; }
-        .row-yellow-bg { background-color: #fef9c3 !important; border-left: 10px solid var(--row-yellow) !important; color: #000; font-weight: 800; }
-        .row-green-bg { background-color: #dcfce7 !important; border-left: 10px solid var(--row-green) !important; color: #000; font-weight: 800; }
-        .row-blue-bg { background-color: #dbeafe !important; border-left: 10px solid var(--row-blue) !important; color: #000; font-weight: 800; }
+        .row-red-bg { background-color: #fee2e2 !important; border-left: 10px solid var(--row-red) !important; color: #000 !important; font-weight: 800; }
+        .row-yellow-bg { background-color: #fef9c3 !important; border-left: 10px solid var(--row-yellow) !important; color: #000 !important; font-weight: 800; }
+        .row-green-bg { background-color: #dcfce7 !important; border-left: 10px solid var(--row-green) !important; color: #000 !important; font-weight: 800; }
+        .row-blue-bg { background-color: #dbeafe !important; border-left: 10px solid var(--row-blue) !important; color: #000 !important; font-weight: 800; }
+
         #historyDrawer { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: #080c14; border-left: 4px solid var(--accent); z-index: 4000; transition: 0.4s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
         #historyDrawer.open { right: 0; }
+        
         @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
     </style>
 </head>
@@ -49,11 +61,11 @@
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-        <h3 style="margin:0; color:var(--accent); font-weight: 900;">VAULT</h3>
-        <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2.5rem; border:none;">×</button>
+        <h3 style="margin:0; color:var(--accent); font-weight: 900;">ARCHIVE VAULT</h3>
+        <button onclick="toggleHistory()" style="background:transparent; color:#ffffff; font-size:2.5rem; border:none; cursor: pointer;">×</button>
     </div>
     <div id="historyList"></div>
-    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none;">WIPE ALL DATA</button>
+    <button onclick="fullReset()" style="width:100%; margin-top:30px; padding:18px; background:var(--danger); color:white; border-radius:12px; font-weight:900; border: none; cursor: pointer;">CLEAR VAULT</button>
 </div>
 
 <div class="fixed-header no-print">
@@ -73,19 +85,20 @@
         <div class="infographic">
             <div class="info-title">🛡️ THE INDEPENDENCE PROTOCOL</div>
             <div class="info-step"><b>1. NO-COLLISION LOGIC:</b> Team members are systematically isolated across zones. It is mathematically impossible for teammates to share a zone on Day 1.</div>
-            <div class="info-step"><b>2. RNG PEGGING:</b> All peg assignments are generated via randomized array shuffling.</div>
+            <div class="info-step"><b>2. RNG PEGGING:</b> All peg assignments are generated via high-entropy randomization.</div>
+            <div class="info-step"><b>3. INTEGRITY GUARD:</b> Late arrivals or amends do not reshuffle. Existing assignments are "pinned," protecting the original integrity of the field.</div>
         </div>
         <div class="setup-bar">
-            <div style="margin-bottom: 15px;">
+            <div style="margin-bottom: 20px;">
                 <label>COMPETITION NAME</label>
                 <input type="text" id="matchTitle" placeholder="Match Name...">
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 <div><label>ZONES</label><input type="number" id="numZones" value="4"></div>
                 <div><label>TEAMS</label><input type="number" id="initTeams" value="24"></div>
                 <div><label>INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none;" onclick="bulkInit()">INITIALIZE GRID</button>
+            <button style="width:100%; background:var(--accent); color:#000; padding:18px; margin-top:25px; border-radius:12px; font-weight:900; border: none; cursor: pointer;" onclick="bulkInit()">INITIALIZE GRID</button>
         </div>
         <div id="entryList"></div>
     </div>
@@ -96,12 +109,12 @@
                 <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.3rem;"></span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 15px;">📤 SHARE PDF</button>
-                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 15px;">✏️ AMEND</button>
+                <button onclick="sharePDF()" style="background:var(--success); color:white; border:none; border-radius:10px; font-weight:900; padding: 16px; cursor: pointer;">📤 SHARE PDF</button>
+                <button onclick="showEntry()" style="background:var(--warning); color:#000; border:none; border-radius:10px; font-weight:900; padding: 16px; cursor: pointer;">✏️ AMEND</button>
             </div>
         </div>
         <div id="resultsArea"></div>
-        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none;" onclick="archiveCurrent()">SAVE & ARCHIVE</button>
+        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
     </div>
 </div>
 
@@ -114,15 +127,15 @@
 
     function renderHistoryList() {
         const list = document.getElementById('historyList');
-        const archives = JSON.parse(localStorage.getItem('zonegen_v920_archive') || '[]');
-        if(archives.length === 0) { list.innerHTML = "<p style='color:#ffffff; text-align:center;'>Empty.</p>"; return; }
+        const archives = JSON.parse(localStorage.getItem('zonegen_v921_archive') || '[]');
+        if(archives.length === 0) { list.innerHTML = "<p style='color:#ffffff; text-align:center;'>Vault is empty.</p>"; return; }
         list.innerHTML = archives.reverse().map(m => `
             <div class="history-item" style="background:var(--card); border:2px solid var(--border); padding:15px; border-radius:12px; margin-bottom:10px; display: flex; align-items: center;">
                 <div onclick="loadFromArchive('${m.id}')" style="flex:1; cursor:pointer;">
                     <div style="color:var(--accent); font-weight:900;">${m.matchName}</div>
-                    <div style="font-size:0.7rem; color:#fff;">${m.timestamp}</div>
+                    <div style="font-size:0.75rem; color:#fff; font-weight:700;">${m.timestamp}</div>
                 </div>
-                <div style="font-size:1.5rem;" onclick="loadFromArchive('${m.id}', true)">📄</div>
+                <div style="font-size:1.8rem; cursor: pointer;" onclick="loadFromArchive('${m.id}', true)">📄</div>
             </div>`).join('');
     }
 
@@ -138,12 +151,12 @@
     function addNewItem(type, tName = "", names = []) {
         const list = document.getElementById('entryList');
         const div = document.createElement('div'); div.className = 'entry-block'; div.dataset.type = type;
-        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.8rem;">×</button>`;
+        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.8rem; cursor: pointer;">×</button>`;
         if(type === 'team') {
             div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name..." value="${tName}" style="margin-bottom:12px; border-bottom:3px solid var(--accent); border-radius: 0;">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Name..." value="${names[i] || ""}">`).join('')}</div>`;
         } else {
-            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name..." value="${names[0] || ""}">`;
+            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Name..." value="${names[0] || ""}">`;
         }
         list.appendChild(div);
         document.getElementById('topControls').style.display = 'flex';
@@ -154,33 +167,28 @@
     function runDraw() {
         const nZones = parseInt(document.getElementById('numZones').value) || 1;
         let teams = {}; let indivs = []; let all = [];
-
         document.querySelectorAll('.entry-block').forEach(block => {
             const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
             const tName = block.querySelector('.t-name')?.value || "Team";
             if(block.dataset.type === 'team' && names.length) {
-                teams[tName] = names.map(n => ({ name: n, team: tName }));
-                all.push(...teams[tName]);
+                teams[tName] = names.map(n => ({ name: n, team: tName })); all.push(...teams[tName]);
             } else if(names[0]) {
-                const a = { name: names[0], team: 'Individual' };
-                indivs.push(a); all.push(a);
+                const a = { name: names[0], team: 'Individual' }; indivs.push(a); all.push(a);
             }
         });
-
-        if(!all.length) return alert("Enter names.");
+        if(!all.length) return alert("Add anglers first!");
 
         const base = Math.floor(all.length / nZones);
         const rem = all.length % nZones;
         let map = []; let cur = 1;
         for(let i=0; i<nZones; i++) {
-            let s = base + (i < rem ? 1 : 0);
+            let s = base + (1 if i < rem else 0);
             map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, p1Pool: [], p2Pool: [] });
             for(let p=cur; p<=cur+s-1; p++) { map[i].p1Pool.push(p); map[i].p2Pool.push(p); }
             shuffle(map[i].p1Pool); shuffle(map[i].p2Pool);
             cur += s;
         }
 
-        // 1. Process Pinned/Locked first
         all.forEach(a => {
             if(lockedAssignments.has(a.name)) {
                 const p = lockedAssignments.get(a.name);
@@ -190,7 +198,6 @@
             }
         });
 
-        // 2. Systematic Team Assignment (Anti-Collision)
         Object.keys(teams).forEach(t => {
             let zoneIndices = Array.from({length: nZones}, (_, i) => i);
             shuffle(zoneIndices);
@@ -205,11 +212,10 @@
             });
         });
 
-        // 3. Process remaining Individuals
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
-                let availableZ1 = Array.from({length: nZones}, (_, i) => i).filter(i => map[i].p1Pool.length > 0);
-                const z1Idx = availableZ1[Math.floor(Math.random() * availableZ1.length)];
+                let avail = Array.from({length: nZones}, (_, i) => i).filter(i => map[i].p1Pool.length > 0);
+                const z1Idx = avail[Math.floor(Math.random() * avail.length)];
                 const z2Idx = (z1Idx + 1) % nZones;
                 a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
                 a.z2 = z2Idx; a.p2 = map[z2Idx].p2Pool.pop();
@@ -218,6 +224,7 @@
         });
 
         renderResults(teams, indivs, map);
+        document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
     }
@@ -231,10 +238,10 @@
 
     function renderResults(teams, indivs, map) {
         let mHtml = `<div style="display:flex; gap:5px; margin-bottom:15px;">` + 
-            map.map(m => `<div class="beach-zone" style="background-color: var(--row-${m.name.toLowerCase()}); flex:1; text-align:center; padding:10px; border-radius:8px;"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:10px;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
-            data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
-        let html = `<div style="text-align:center;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + mHtml;
+            map.map(m => `<div style="background-color: var(--row-${m.name.toLowerCase()}); flex:1; text-align:center; padding:10px; border-radius:8px; color:#000; font-weight:900; font-size:10px;"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
+        const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
+            data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}-bg" style="padding:10px; border-bottom:1px solid #000;">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}-bg" style="padding:10px; border-bottom:1px solid #000;">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
+        let html = `<div style="text-align:center; padding-bottom:15px;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + mHtml;
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
@@ -242,21 +249,20 @@
     }
 
     function archiveCurrent() {
-        const mTitle = document.getElementById('matchTitle').value || "Match";
         const blocks = [];
         document.querySelectorAll('.entry-block').forEach(block => {
             blocks.push({ type: block.dataset.type, tName: block.querySelector('.t-name')?.value || "", names: Array.from(block.querySelectorAll('.a-name')).map(i => i.value) });
         });
-        const archiveData = { id: currentMatchID || Date.now().toString(), matchName: mTitle, timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
-        let archives = JSON.parse(localStorage.getItem('zonegen_v920_archive') || '[]');
+        const archiveData = { id: currentMatchID || Date.now().toString(), matchName: document.getElementById('matchTitle').value || "Match", timestamp: new Date().toLocaleString(), z: document.getElementById('numZones').value, blocks, locks: Object.fromEntries(lockedAssignments) };
+        let archives = JSON.parse(localStorage.getItem('zonegen_v921_archive') || '[]');
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
-        localStorage.setItem('zonegen_v920_archive', JSON.stringify(archives));
+        localStorage.setItem('zonegen_v921_archive', JSON.stringify(archives));
         alert("Saved."); fullReset(true);
     }
 
     function loadFromArchive(id, share = false) {
-        const data = JSON.parse(localStorage.getItem('zonegen_v920_archive')).find(a => a.id === id);
+        const data = JSON.parse(localStorage.getItem('zonegen_v921_archive')).find(a => a.id === id);
         currentMatchID = id; document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
         const list = document.getElementById('entryList'); list.innerHTML = '';
@@ -268,12 +274,12 @@
     }
 
     function sharePDF() {
-        const matchTitle = document.getElementById('matchTitle').value || 'Draw';
-        html2pdf().set({ margin: 10, filename: `${matchTitle}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('resultsArea')).save();
+        const title = document.getElementById('matchTitle').value || 'Results';
+        html2pdf().set({ margin: 10, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('resultsArea')).save();
     }
 
     function showEntry() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
-    function fullReset(silent = false) { if(silent || confirm("Clear?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; document.getElementById('matchTitle').value = ''; } }
+    function fullReset(silent = false) { if(silent || confirm("WIPE?")) { lockedAssignments.clear(); currentMatchID = null; document.getElementById('entryList').innerHTML = ''; document.getElementById('resultsSection').style.display = 'none'; document.getElementById('entrySection').style.display = 'block'; } }
 </script>
 </body>
 </html>
