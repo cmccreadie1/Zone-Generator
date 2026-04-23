@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.3.0</title>
+    <title>Zone Generator v9.3.1</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@
         :root {
             --bg: #020617; --card: #1e293b; --text: #ffffff; 
             --accent: #00d2ff; --success: #22c55e; --border: #475569;
-            --warning: #fbbf24; --danger: #ef4444;
+            --warning: #fbbf24; --danger: #ef4444; --excel: #1d6f42;
             --row-red: #ff4d4d; --row-yellow: #ffeb3b; --row-green: #4ade80; --row-blue: #3b82f6;
         }
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -50,37 +50,20 @@
         input:focus { border-color: var(--accent); color: var(--accent) !important; }
 
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; border: 2px solid var(--border); padding: 15px; position: relative; }
-        
         .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
         
-        .btn-sm { 
-            padding: 12px; font-size: 12px; background: transparent; 
-            border: 2px solid var(--accent); color: var(--accent); flex: 1; 
-            font-weight: 900; border-radius: 10px; text-transform: uppercase; 
-            cursor: pointer; transition: all 0.1s ease;
-        }
+        .btn-sm { padding: 12px; font-size: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); flex: 1; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; transition: all 0.1s ease; }
         .btn-sm:active { background: var(--accent); color: #000; transform: scale(0.95); }
 
-        .btn-draw-vibrant { 
-            background: linear-gradient(to right, #00c6ff, #0072ff); 
-            color: white; padding: 12px; flex: 2; font-size: 14px; 
-            border-radius: 10px; text-transform: uppercase; font-weight: 900; 
-            cursor: pointer; transition: transform 0.1s;
-        }
+        .btn-draw-vibrant { background: linear-gradient(to right, #00c6ff, #0072ff); color: white; padding: 12px; flex: 2; font-size: 14px; border-radius: 10px; text-transform: uppercase; font-weight: 900; cursor: pointer; transition: transform 0.1s; }
         .btn-draw-vibrant:active { transform: scale(0.98); opacity: 0.9; }
         
         .btn-init { width:100%; background:var(--accent); color:#000; padding:15px; margin-top:20px; border-radius:12px; font-weight:900; border: none; cursor: pointer; display: block; }
 
         .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px; position: relative; z-index: 10; }
-        .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
         
-        /* Haptic Amend Button */
-        .btn-nav-action { 
-            padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; 
-            border: none; cursor: pointer; text-transform: uppercase; 
-            display: flex; flex-direction: column; align-items: center; 
-            gap: 4px; transition: all 0.1s ease;
-        }
+        .btn-nav-action { padding: 12px 2px; border-radius: 8px; font-size: 9px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.1s ease; }
         .btn-nav-action:active { transform: scale(0.92); opacity: 0.8; }
 
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
@@ -143,23 +126,26 @@
     <div id="resultsSection" style="display: none;">
         <div class="results-nav-bar no-print">
             <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 15px;">
-                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1.1rem;"></span>
+                <span id="displayTitle" style="font-weight:900; color:#ffffff; font-size: 1rem;"></span>
             </div>
             <div class="nav-btn-grid">
                 <button onclick="sharePDF()" class="btn-nav-action" style="background:var(--success); color:white;">
-                    <span style="font-size: 18px;">📤</span> SHARE
+                    <span style="font-size: 16px;">📤</span> SHARE
+                </button>
+                <button onclick="downloadExcel()" class="btn-nav-action" style="background:var(--excel); color:white;">
+                    <span style="font-size: 16px;">📊</span> EXCEL
                 </button>
                 <button onclick="window.print()" class="btn-nav-action" style="background:var(--accent); color:#000;">
-                    <span style="font-size: 18px;">🖨️</span> PRINT
+                    <span style="font-size: 16px;">🖨️</span> PRINT
                 </button>
                 <button onclick="handleAmend()" class="btn-nav-action" style="background:var(--warning); color:#000;">
-                    <span style="font-size: 18px;">✏️</span> AMEND
+                    <span style="font-size: 16px;">✏️</span> AMEND
                 </button>
             </div>
         </div>
         
         <div id="resultsArea"></div>
-        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE</button>
+        <button class="btn-draw-vibrant no-print" style="width:100%; margin-top:30px; padding:24px; font-size: 18px; font-weight:900; border: none; cursor: pointer;" onclick="archiveCurrent()">SAVE & ARCHIVE FINAL DRAW</button>
     </div>
 </div>
 
@@ -167,7 +153,8 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v930_archive';
+    let currentDrawData = []; // Store active draw for CSV export
+    const STORAGE_KEY = 'zonegen_v931_archive';
 
     function triggerHaptic() { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(15); } }
 
@@ -264,7 +251,7 @@
 
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
-                let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx].p1Pool.length > 0);
+                let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx] && map[idx].p1Pool.length > 0);
                 if(availZ1.length > 0) {
                     const z1Idx = availZ1[Math.floor(Math.random() * availZ1.length)];
                     const z2Idx = (z1Idx + 1) % nZones;
@@ -281,12 +268,33 @@
             }
         });
 
+        currentDrawData = all; // Cache for CSV export
         renderResults(teams, indivs, map);
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('topControls').style.display = 'none';
         window.scrollTo(0,0);
+    }
+
+    function downloadExcel() {
+        triggerHaptic();
+        if (!currentDrawData.length) return alert("No draw data to export.");
+        
+        let csvContent = "Angler Name,Team Name,Zone\n";
+        currentDrawData.forEach(a => {
+            const zoneName = zones[a.z1] || "N/A";
+            csvContent += `"${a.name}","${a.team}","${zoneName}"\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Tournament_Draw_Export.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
@@ -312,7 +320,7 @@
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(archives));
-        alert("Saved."); fullReset(true);
+        alert("Saved to Archive Vault."); fullReset(true);
     }
 
     function loadFromArchive(id, share = false) {
