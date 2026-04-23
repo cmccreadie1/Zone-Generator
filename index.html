@@ -7,7 +7,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --text: #f8fafc;
@@ -15,10 +17,15 @@
             --warning: #f59e0b; --danger: #ef4444;
             --row-red: #fca5a5; --row-yellow: #fde047; --row-green: #86efac; --row-blue: #93c5fd;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 950px; margin: 0 auto; padding: 15px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: #1e293b; border-bottom: 2px solid var(--accent); padding: 10px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .fixed-header { 
+            position: fixed; top: 0; left: 0; right: 0; z-index: 3000; 
+            background: #1e293b; border-bottom: 2px solid var(--accent);
+            padding: 10px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .container { max-width: 950px; margin: 0 auto; padding: 15px; }
         #entrySection { padding-top: 170px; }
         #resultsSection { padding-top: 20px; }
 
@@ -33,33 +40,35 @@
         .angler-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
         .action-bar { display: flex; gap: 8px; margin-top: 10px; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; }
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
         .btn-sm { padding: 12px; font-size: 12px; background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); flex: 1; }
         .btn-draw-main { background: var(--success); color: white; padding: 12px; flex: 2; font-size: 14px; text-transform: uppercase; }
 
-        .beach-map { display: flex; gap: 5px; margin-bottom: 20px; }
-        .beach-zone { flex: 1; padding: 10px 5px; border-radius: 6px; text-align: center; color: #1e293b; font-size: 0.7rem; }
+        .beach-map { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px; }
+        .beach-zone { flex: 1; min-width: 80px; padding: 10px 5px; border-radius: 6px; text-align: center; color: #1e293b; font-size: 0.8rem; }
+        .beach-zone b { display: block; font-size: 1rem; }
 
-        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; page-break-inside: avoid; }
+        /* PDF Styling - Force white background for the PDF export */
+        .res-block { background: white; color: #1e293b; border-radius: 8px; margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; }
         table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; }
+        td, th { padding: 10px 8px; text-align: left; border-bottom: 1px solid #eee; }
 
-        .draw-heading { color: #0f172a; text-align: center; margin: 0; text-transform: uppercase; }
-        .comp-name-sub { color: #0284c7; font-weight: 700; display: block; font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
+        .draw-heading { color: #0f172a !important; text-align: center; margin-top: 0; font-weight: 800; text-transform: uppercase; }
+        .comp-name-sub { color: #0284c7 !important; font-weight: 700; display: block; font-size: 1.4rem; text-align: center; margin-bottom: 15px; }
 
         .row-red { background-color: var(--row-red) !important; }
         .row-yellow { background-color: var(--row-yellow) !important; }
         .row-green { background-color: var(--row-green) !important; }
         .row-blue { background-color: var(--row-blue) !important; }
 
-        @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } }
+        @media print { .no-print, .fixed-header, #historyDrawer { display: none !important; } #entrySection { padding-top: 0; } }
     </style>
 </head>
 <body>
 
 <div id="historyDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; color:var(--accent);">Match Archive</h3>
+        <h3 style="margin:0; color:var(--accent);">Archives</h3>
         <button onclick="toggleHistory()" style="background:transparent; color:white; font-size:1.5rem;">×</button>
     </div>
     <div id="historyList"></div>
@@ -90,7 +99,7 @@
                 <div><label style="font-size:10px; color:var(--accent)">TEAMS</label><input type="number" id="initTeams" value="24"></div>
                 <div><label style="font-size:10px; color:var(--accent)">INDIVS</label><input type="number" id="initIndivs" value="2"></div>
             </div>
-            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px; font-weight:bold;" onclick="bulkInit()">INITIALIZE LIST</button>
+            <button style="width:100%; background:var(--accent); color:var(--bg); padding:12px; margin-top:15px; border-radius:6px; font-weight:bold;" onclick="bulkInit()">INITIALIZE ANGLER LIST</button>
         </div>
         <div id="entryList"></div>
     </div>
@@ -99,12 +108,13 @@
         <div style="background:var(--card); padding:12px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;" class="no-print">
             <span id="displayTitle" style="font-weight:bold; color:var(--accent);"></span>
             <div style="display:flex; gap:8px;">
-                <button onclick="sharePDF()" style="background:var(--success); color:#fff; padding:6px 12px; border-radius:4px; font-size:11px;">SHARE PDF</button>
-                <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px;">AMEND</button>
+                <button onclick="sharePDF()" style="background:var(--success); color:#fff; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">SHARE PDF</button>
+                <button onclick="showEntry()" style="background:var(--warning); color:#000; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:bold;">AMEND</button>
             </div>
         </div>
-        <div id="resultsArea" style="background:white; padding:20px; border-radius:4px;"></div>
-        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveCurrent()">SAVE & FINALIZE MATCH</button>
+        <div id="resultsArea" style="background:white; padding:15px; border-radius:4px;"></div>
+        
+        <button class="btn-draw-main no-print" style="width:100%; margin-top:20px; padding:15px;" onclick="archiveCurrent()">COMPLETE & FILE MATCH</button>
     </div>
 </div>
 
@@ -126,22 +136,40 @@
             <div class="history-item">
                 <div onclick="loadFromArchive('${m.id}')" style="flex:1; cursor:pointer;">
                     <div style="color:var(--accent); font-weight:bold;">${m.matchName}</div>
-                    <div style="font-size:0.7rem; color:#94a3b8;">${m.timestamp}</div>
+                    <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">${m.timestamp}</div>
                 </div>
-                <div style="cursor:pointer; font-size:1.2rem;" onclick="shareArchivePDF('${m.id}')">📄</div>
+                <div style="cursor:pointer; font-size:1.2rem;" onclick="loadFromArchive('${m.id}', true)">📄</div>
             </div>`).join('');
     }
 
     async function sharePDF() {
         const element = document.getElementById('resultsArea');
-        const opt = { margin: 10, filename: 'MatchDraw.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        const matchTitle = document.getElementById('matchTitle').value || 'MatchDraw';
         
-        const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-        const file = new File([pdfBlob], `${document.getElementById('matchTitle').value || 'Draw'}.pdf`, { type: 'application/pdf' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({ files: [file], title: 'Match Draw Results', text: 'Official Results Attached' });
-        } else {
+        const opt = {
+            margin: 10,
+            filename: `${matchTitle}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+            const file = new File([pdfBlob], `${matchTitle}.pdf`, { type: 'application/pdf' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Competition Draw Results',
+                    text: `Official Draw Results for: ${matchTitle}`
+                });
+            } else {
+                // Fallback for browsers that don't support file sharing
+                html2pdf().set(opt).from(element).save();
+            }
+        } catch (err) {
+            alert("Sharing failed. Downloading instead.");
             html2pdf().set(opt).from(element).save();
         }
     }
@@ -168,17 +196,22 @@
         let archives = JSON.parse(localStorage.getItem('zonegen_v900_archive') || '[]');
         const existingIdx = archives.findIndex(a => a.id === archiveData.id);
         
-        if(existingIdx > -1) archives[existingIdx] = archiveData;
-        else archives.push(archiveData);
-        
+        if (existingIdx > -1) {
+            archives[existingIdx] = archiveData;
+        } else {
+            archives.push(archiveData);
+        }
+
         localStorage.setItem('zonegen_v900_archive', JSON.stringify(archives));
         alert("Match Saved.");
         fullReset(true);
     }
 
-    function loadFromArchive(id) {
+    function loadFromArchive(id, andShare = false) {
         const archives = JSON.parse(localStorage.getItem('zonegen_v900_archive'));
         const data = archives.find(a => a.id === id);
+        if (!data) return;
+
         currentMatchID = id;
         document.getElementById('matchTitle').value = data.matchName;
         document.getElementById('numZones').value = data.z;
@@ -186,8 +219,11 @@
         list.innerHTML = '';
         data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names));
         lockedAssignments = new Map(Object.entries(data.locks));
-        toggleHistory();
+        
+        if (document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
         runDraw();
+        
+        if (andShare) setTimeout(sharePDF, 500);
     }
 
     function bulkInit() {
@@ -205,12 +241,12 @@
         const div = document.createElement('div');
         div.className = 'entry-block';
         div.dataset.type = type;
-        div.innerHTML = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.2rem;">×</button>`;
+        const del = `<button onclick="this.parentElement.remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:var(--danger);font-size:1.2rem;">×</button>`;
         if(type === 'team') {
-            div.innerHTML += `<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
+            div.innerHTML = `${del}<input type="text" class="t-name" placeholder="Team Name" value="${tName}" style="margin-bottom:10px; border-bottom:1px solid var(--accent);">
                 <div class="angler-grid">${[0,1,2,3].map(i => `<input type="text" class="a-name" placeholder="Angler" value="${names[i] || ""}">`).join('')}</div>`;
         } else {
-            div.innerHTML += `<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
+            div.innerHTML = `${del}<input type="text" class="a-name" placeholder="Individual Name" value="${names[0] || ""}">`;
         }
         list.appendChild(div);
         document.getElementById('topControls').style.display = 'flex';
@@ -219,6 +255,7 @@
     function runDraw() {
         const nZones = parseInt(document.getElementById('numZones').value) || 1;
         let teams = {}; let indivs = []; let all = [];
+
         document.querySelectorAll('.entry-block').forEach(block => {
             const names = Array.from(block.querySelectorAll('.a-name')).map(i => i.value.trim()).filter(n => n);
             const tName = block.querySelector('.t-name')?.value || "Team";
@@ -230,7 +267,8 @@
                 indivs.push(a); all.push(a);
             }
         });
-        if(!all.length) return alert("Enter names!");
+
+        if(!all.length) return alert("Please enter angler names.");
 
         const base = Math.floor(all.length / nZones);
         const rem = all.length % nZones;
@@ -264,6 +302,7 @@
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "Current Match";
         document.getElementById('entrySection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('topControls').style.display = 'none';
     }
 
     function getPeg(z, k) {
@@ -275,21 +314,27 @@
     function renderResults(teams, indivs, map) {
         let mHtml = `<div class="beach-map" style="display:flex; gap:5px; margin-bottom:20px;">` + 
             map.map(m => `<div class="beach-zone row-${m.name.toLowerCase()}"><b>${m.name}</b>${m.start}-${m.end}</div>`).join('') + `</div>`;
-        const tbl = (data, title) => `<div class="res-block" style="border:1px solid #ddd; margin-bottom:10px; padding:10px;"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
+        
+        const tbl = (data, title) => `<div class="res-block"><h3>${title}</h3><table><thead><tr><th>Angler</th><th>Day 1</th><th>Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td><strong>${a.name}</strong></td><td class="row-${zones[a.z1].toLowerCase()}">${zones[a.z1]} (${a.p1})</td><td class="row-${zones[a.z2].toLowerCase()}">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
-        let html = `<div style="text-align:center;"><h2 class="draw-heading">Official Draw Sheet</h2><span class="comp-name-sub">${document.getElementById('matchTitle').value || 'Match'}</span></div>` + mHtml;
+
+        let matchTitle = document.getElementById('matchTitle').value || 'Official Draw';
+        let html = `<div style="text-align:center;"><h2 class="draw-heading">Official Draw Sheet</h2><span class="comp-name-sub">${matchTitle}</span></div>` + mHtml;
+
         Object.keys(teams).forEach(t => html += tbl(teams[t], "Team: " + t));
         if(indivs.length) html += tbl(indivs, "Individuals");
         document.getElementById('resultsArea').innerHTML = html;
+        window.scrollTo(0,0);
     }
 
     function showEntry() {
         document.getElementById('entrySection').style.display = 'block';
         document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('topControls').style.display = 'flex';
     }
 
     function fullReset(silent = false) {
-        if(silent || confirm("Reset workspace?")) {
+        if(silent || confirm("Clear current workspace?")) {
             lockedAssignments.clear(); currentMatchID = null;
             document.getElementById('entryList').innerHTML = '';
             document.getElementById('resultsSection').style.display = 'none';
