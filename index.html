@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.2.9</title>
+    <title>Zone Generator v9.3.0</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -53,7 +53,6 @@
         
         .action-bar { display: flex; gap: 10px; width: 100%; max-width: 500px; margin-top: 5px; }
         
-        /* Haptic / Animated Buttons */
         .btn-sm { 
             padding: 12px; font-size: 12px; background: transparent; 
             border: 2px solid var(--accent); color: var(--accent); flex: 1; 
@@ -74,8 +73,16 @@
 
         .results-nav-bar { background: var(--card); padding: 15px; border-radius: 12px; border: 2px solid var(--border); margin-bottom: 20px; position: relative; z-index: 10; }
         .nav-btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .btn-nav-action { padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         
+        /* Haptic Amend Button */
+        .btn-nav-action { 
+            padding: 14px 5px; border-radius: 8px; font-size: 10px; font-weight: 900; 
+            border: none; cursor: pointer; text-transform: uppercase; 
+            display: flex; flex-direction: column; align-items: center; 
+            gap: 4px; transition: all 0.1s ease;
+        }
+        .btn-nav-action:active { transform: scale(0.92); opacity: 0.8; }
+
         .res-block { background: #ffffff; color: #0f172a; border-radius: 12px; margin-bottom: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
         .pdf-zone-tag { flex: 1; text-align: center; padding: 10px 2px; border-radius: 8px; color: #000 !important; font-weight: 900; font-size: 10px; border: 1px solid rgba(0,0,0,0.2); -webkit-print-color-adjust: exact; }
 
@@ -145,7 +152,7 @@
                 <button onclick="window.print()" class="btn-nav-action" style="background:var(--accent); color:#000;">
                     <span style="font-size: 18px;">🖨️</span> PRINT
                 </button>
-                <button onclick="showEntry()" class="btn-nav-action" style="background:var(--warning); color:#000;">
+                <button onclick="handleAmend()" class="btn-nav-action" style="background:var(--warning); color:#000;">
                     <span style="font-size: 18px;">✏️</span> AMEND
                 </button>
             </div>
@@ -160,7 +167,7 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    const STORAGE_KEY = 'zonegen_v929_archive';
+    const STORAGE_KEY = 'zonegen_v930_archive';
 
     function triggerHaptic() { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(15); } }
 
@@ -317,10 +324,7 @@
         data.blocks.forEach(b => addNewItem(b.type, b.tName, b.names, true));
         lockedAssignments = new Map(Object.entries(data.locks));
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
-        
-        // Hide Setup bar when loading from archive
         document.getElementById('setupBar').style.display = 'none';
-        
         runDraw(); 
         if(share) setTimeout(sharePDF, 500);
     }
@@ -337,11 +341,11 @@
         } catch (err) { html2pdf().from(element).save(); }
     }
 
-    function showEntry() { 
+    function handleAmend() {
+        triggerHaptic();
         document.getElementById('entrySection').style.display = 'block'; 
         document.getElementById('resultsSection').style.display = 'none'; 
         document.getElementById('topControls').style.display = 'flex'; 
-        // Keep setup bar hidden if we are in an amendment flow
         if (currentMatchID) document.getElementById('setupBar').style.display = 'none';
     }
     
