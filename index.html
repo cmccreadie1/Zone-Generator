@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.3.1</title>
+    <title>Zone Generator v9.3.2</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -153,8 +153,8 @@
     const zones = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Silver', 'Gold'];
     let lockedAssignments = new Map();
     let currentMatchID = null;
-    let currentDrawData = []; // Store active draw for CSV export
-    const STORAGE_KEY = 'zonegen_v931_archive';
+    let currentDrawData = []; 
+    const STORAGE_KEY = 'zonegen_v932_archive';
 
     function triggerHaptic() { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(15); } }
 
@@ -268,7 +268,7 @@
             }
         });
 
-        currentDrawData = all; // Cache for CSV export
+        currentDrawData = all; 
         renderResults(teams, indivs, map);
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
         document.getElementById('entrySection').style.display = 'none';
@@ -284,7 +284,9 @@
         let csvContent = "Angler Name,Team Name,Zone\n";
         currentDrawData.forEach(a => {
             const zoneName = zones[a.z1] || "N/A";
-            csvContent += `"${a.name}","${a.team}","${zoneName}"\n`;
+            // If the angler is an individual, output an empty string for the team column.
+            const exportTeam = a.team === "Individual" ? "" : a.team;
+            csvContent += `"${a.name}","${exportTeam}","${zoneName}"\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
