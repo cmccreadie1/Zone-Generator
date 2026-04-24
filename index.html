@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.4.0</title>
+    <title>Zone Generator v9.4.1</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,7 +39,6 @@
         #entrySection { padding-top: 175px; }
         #resultsSection { padding-top: 110px; }
 
-        /* Updated Infographic Styling */
         .infographic { background: linear-gradient(145deg, rgba(0, 210, 255, 0.2), rgba(15, 23, 42, 0.8)); border: 2px solid var(--accent); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .info-title { color: var(--accent); font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1.2px; }
         .info-subtitle { font-size: 10px; font-style: italic; color: #cbd5e1; margin-bottom: 12px; line-height: 1.4;}
@@ -48,11 +47,9 @@
         .setup-bar { background: var(--card); padding: 20px; border-radius: 16px; border: 2px solid var(--border); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; margin-bottom: 20px;}
         .setup-bar label { color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; }
         
-        /* Auto-Capitalization applied to all inputs */
         input { background: #000000; border: 2px solid var(--border); color: #ffffff !important; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; text-transform: uppercase; }
         input:focus { border-color: var(--accent); color: var(--accent) !important; }
 
-        /* Block distinction styling */
         .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; padding: 15px; position: relative; transition: all 0.2s; }
         .entry-block[data-type="team"] { border: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(0, 210, 255, 0.1); }
         .entry-block[data-type="indiv"] { border: 2px solid var(--warning); box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1); }
@@ -166,21 +163,21 @@
     let lockedAssignments = new Map();
     let currentMatchID = null;
     let currentDrawData = []; 
-    const STORAGE_KEY = 'zonegen_v940_archive';
-    const DRAFT_KEY = 'zonegen_v940_draft';
+    let isDrawSaved = true; // Tracks if the current draw is archived
 
-    // Register Service Worker
+    const STORAGE_KEY = 'zonegen_v941_archive';
+    const DRAFT_KEY = 'zonegen_v941_draft';
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
     }
 
     function triggerHaptic() { if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(15); } }
 
-    // --- ACCIDENTAL REFRESH PROTECTION (AUTO-SAVE) ---
     document.getElementById('entrySection').addEventListener('input', saveDraft);
 
     function saveDraft() {
-        if (currentMatchID) return; // Only draft new setups
+        if (currentMatchID) return; 
         const blocks = [];
         document.querySelectorAll('.entry-block').forEach(block => {
             blocks.push({
@@ -214,12 +211,14 @@
     window.addEventListener('DOMContentLoaded', restoreDraft);
 
     window.addEventListener('beforeunload', function (e) {
-        if (document.getElementById('entrySection').style.display !== 'none' && document.querySelectorAll('.entry-block').length > 0) {
+        const hasUnsavedEntry = document.getElementById('entrySection').style.display !== 'none' && document.querySelectorAll('.entry-block').length > 0 && !currentMatchID;
+        const hasUnsavedDraw = document.getElementById('resultsSection').style.display === 'block' && !isDrawSaved;
+        
+        if (hasUnsavedEntry || hasUnsavedDraw) {
             e.preventDefault();
-            e.returnValue = ''; // Trigger generic browser warning
+            e.returnValue = ''; 
         }
     });
-    // -------------------------------------------------
 
     function toggleHistory() { document.getElementById('historyDrawer').classList.toggle('open'); renderHistoryList(); }
 
@@ -245,7 +244,7 @@
         for(let x=0; x<t; x++) addNewItem('team', '', [], true);
         for(let y=0; y<i; y++) addNewItem('indiv', '', [], true);
         document.getElementById('topControls').style.display = 'flex';
-        saveDraft(); // Save instantly on bulk generation
+        saveDraft(); 
         window.scrollBy({ top: 150, behavior: 'smooth' });
     }
 
@@ -339,9 +338,9 @@
         });
 
         currentDrawData = all; 
+        isDrawSaved = false; // Mark the draw as unsaved
         renderResults(teams, indivs, map);
         
-        // Remove draft once successfully run to allow smooth exit
         localStorage.removeItem(DRAFT_KEY);
 
         document.getElementById('displayTitle').innerText = document.getElementById('matchTitle').value || "RESULTS";
@@ -355,11 +354,12 @@
         triggerHaptic();
         if (!currentDrawData.length) return alert("No draw data to export.");
         
-        let csvContent = "Angler Name,Team Name,Zone\n";
+        let csvContent = "Angler Name,Team Name,Day 1 Zone,Day 2 Zone\n";
         currentDrawData.forEach(a => {
-            const zoneName = zones[a.z1] || "N/A";
+            const z1Name = zones[a.z1] || "N/A";
+            const z2Name = zones[a.z2] || "N/A";
             const exportTeam = a.team === "Individual" ? "" : a.team;
-            csvContent += `"${a.name}","${exportTeam}","${zoneName}"\n`;
+            csvContent += `"${a.name}","${exportTeam}","${z1Name}","${z2Name}"\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -395,7 +395,9 @@
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(archives));
-        alert("Saved to Archive Vault."); fullReset(true);
+        isDrawSaved = true; // Clear the warning flag
+        alert("Saved to Archive Vault."); 
+        fullReset(true);
     }
 
     function loadFromArchive(id, share = false) {
@@ -409,6 +411,7 @@
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
         document.getElementById('setupBar').style.display = 'none';
         runDraw(); 
+        isDrawSaved = true; // Loading from archive inherently means it is safely saved
         if(share) setTimeout(sharePDF, 500);
     }
 
@@ -433,8 +436,12 @@
     }
     
     function fullReset(silent = false) { 
-        if(silent || confirm("WIPE ALL DATA AND START FRESH?")) { 
-            lockedAssignments.clear(); currentMatchID = null; 
+        let promptMsg = "WIPE ALL DATA AND START FRESH?";
+        if (document.getElementById('resultsSection').style.display === 'block' && !isDrawSaved) {
+            promptMsg = "WARNING: Your current draw is not saved to the Vault! Are you sure you want to wipe everything?";
+        }
+        if(silent || confirm(promptMsg)) { 
+            lockedAssignments.clear(); currentMatchID = null; isDrawSaved = true;
             localStorage.removeItem(DRAFT_KEY);
             document.getElementById('entryList').innerHTML = ''; 
             document.getElementById('resultsSection').style.display = 'none'; 
