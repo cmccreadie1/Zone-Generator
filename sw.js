@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zonegen-v9.4.2';
+const CACHE_NAME = 'zonegen-v9.4.3';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
