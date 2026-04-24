@@ -1,10 +1,40 @@
-onst CACHE_NAME = 'zone-gen-v8.7.0';
-const ASSETS = ['./', './index.html', './manifest.json'];
+const CACHE_NAME = 'zonegen-v9.4.1';
+const ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './manifest.json',
+    './icon.svg',
+    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+];
 
-self.addEventListener('install', (e) => {
-    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(ASSETS_TO_CACHE);
+        })
+    );
+    self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+    self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
 });
