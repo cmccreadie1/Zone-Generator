@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.4.1</title>
+    <title>Zone Generator v9.4.2</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -50,7 +50,13 @@
         input { background: #000000; border: 2px solid var(--border); color: #ffffff !important; padding: 12px; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; text-transform: uppercase; }
         input:focus { border-color: var(--accent); color: var(--accent) !important; }
 
-        .entry-block { background: var(--card); border-radius: 12px; margin-bottom: 15px; padding: 15px; position: relative; transition: all 0.2s; }
+        /* Responsive Grid For Entry List */
+        #entryList { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 800px) {
+            #entryList { grid-template-columns: 1fr 1fr; }
+        }
+
+        .entry-block { background: var(--card); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
         .entry-block[data-type="team"] { border: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(0, 210, 255, 0.1); }
         .entry-block[data-type="indiv"] { border: 2px solid var(--warning); box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1); }
         
@@ -163,10 +169,10 @@
     let lockedAssignments = new Map();
     let currentMatchID = null;
     let currentDrawData = []; 
-    let isDrawSaved = true; // Tracks if the current draw is archived
+    let isDrawSaved = true; 
 
-    const STORAGE_KEY = 'zonegen_v941_archive';
-    const DRAFT_KEY = 'zonegen_v941_draft';
+    const STORAGE_KEY = 'zonegen_v942_archive';
+    const DRAFT_KEY = 'zonegen_v942_draft';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
@@ -338,7 +344,7 @@
         });
 
         currentDrawData = all; 
-        isDrawSaved = false; // Mark the draw as unsaved
+        isDrawSaved = false; 
         renderResults(teams, indivs, map);
         
         localStorage.removeItem(DRAFT_KEY);
@@ -395,7 +401,7 @@
         const idx = archives.findIndex(a => a.id === archiveData.id);
         if(idx > -1) archives[idx] = archiveData; else archives.push(archiveData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(archives));
-        isDrawSaved = true; // Clear the warning flag
+        isDrawSaved = true; 
         alert("Saved to Archive Vault."); 
         fullReset(true);
     }
@@ -411,7 +417,7 @@
         if(document.getElementById('historyDrawer').classList.contains('open')) toggleHistory();
         document.getElementById('setupBar').style.display = 'none';
         runDraw(); 
-        isDrawSaved = true; // Loading from archive inherently means it is safely saved
+        isDrawSaved = true; 
         if(share) setTimeout(sharePDF, 500);
     }
 
