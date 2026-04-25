@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zone Generator v9.4.3</title>
+    <title>Zone Generator v9.4.4</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -188,8 +188,8 @@
     let currentDrawData = []; 
     let isDrawSaved = true; 
 
-    const STORAGE_KEY = 'zonegen_v943_archive';
-    const DRAFT_KEY = 'zonegen_v943_draft';
+    const STORAGE_KEY = 'zonegen_v944_archive';
+    const DRAFT_KEY = 'zonegen_v944_draft';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
@@ -315,52 +315,73 @@
 
         const base = Math.floor(all.length / nZones);
         const rem = all.length % nZones;
-        let map = []; let cur = 1;
+        let map1 = []; let map2 = []; 
+        let cur1 = 1; let cur2 = 1;
+        
+        // 1. Dynamic Boundary Creation
         for(let i=0; i<nZones; i++) {
-            let s = base + (i < rem ? 1 : 0);
-            map.push({ name: zones[i], start: cur, end: cur+s-1, size: s, p1Pool: [], p2Pool: [] });
-            for(let p=cur; p<=cur+s-1; p++) { map[i].p1Pool.push(p); map[i].p2Pool.push(p); }
-            shuffle(map[i].p1Pool); shuffle(map[i].p2Pool);
-            cur += s;
+            // Day 1: Extra pegs loaded to the front
+            let s1 = base + (i < rem ? 1 : 0);
+            map1.push({ name: zones[i], start: cur1, end: cur1+s1-1, size: s1, p1Pool: [] });
+            for(let p=cur1; p<=cur1+s1-1; p++) map1[i].p1Pool.push(p);
+            shuffle(map1[i].p1Pool);
+            cur1 += s1;
+
+            // Day 2: Extra pegs loaded to the back
+            let s2 = base + (i >= nZones - rem ? 1 : 0);
+            map2.push({ name: zones[i], start: cur2, end: cur2+s2-1, size: s2, p2Pool: [] });
+            for(let p=cur2; p<=cur2+s2-1; p++) map2[i].p2Pool.push(p);
+            shuffle(map2[i].p2Pool);
+            cur2 += s2;
         }
 
         all.forEach(a => {
             if(lockedAssignments.has(a.name)) {
                 const p = lockedAssignments.get(a.name);
                 a.z1 = p.z1; a.p1 = p.p1; a.z2 = p.z2; a.p2 = p.p2;
-                if(map[a.z1]) map[a.z1].p1Pool = map[a.z1].p1Pool.filter(x => x !== a.p1);
-                if(map[a.z2]) map[a.z2].p2Pool = map[a.z2].p2Pool.filter(x => x !== a.p2);
+                if(map1[a.z1]) map1[a.z1].p1Pool = map1[a.z1].p1Pool.filter(x => x !== a.p1);
+                if(map2[a.z2]) map2[a.z2].p2Pool = map2[a.z2].p2Pool.filter(x => x !== a.p2);
             }
         });
 
+        // 2. Scrambled Team Allocation
         Object.keys(teams).forEach(t => {
             let zoneIndices = Array.from({length: nZones}, (_, i) => i);
             shuffle(zoneIndices);
+            
+            // Generate a random rotation jump distance to scramble Day 2 mapping
+            let jump = nZones > 1 ? Math.floor(Math.random() * (nZones - 1)) + 1 : 0;
+
             teams[t].forEach((a, i) => {
                 if(!lockedAssignments.has(a.name)) {
                     const z1Idx = zoneIndices[i % nZones];
-                    const z2Idx = (z1Idx + 1) % nZones;
-                    a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
-                    a.z2 = z2Idx; a.p2 = map[z2Idx].p2Pool.pop();
+                    const z2Idx = (z1Idx + jump) % nZones;
+                    a.z1 = z1Idx; a.p1 = map1[z1Idx].p1Pool.pop();
+                    a.z2 = z2Idx; a.p2 = map2[z2Idx].p2Pool.pop();
                     lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
                 }
             });
         });
 
+        // 3. True Random Individual Allocation
         indivs.forEach(a => {
             if(!lockedAssignments.has(a.name)) {
-                let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map[idx] && map[idx].p1Pool.length > 0);
+                let availZ1 = Array.from({length: nZones}, (_, i) => i).filter(idx => map1[idx] && map1[idx].p1Pool.length > 0);
                 if(availZ1.length > 0) {
                     const z1Idx = availZ1[Math.floor(Math.random() * availZ1.length)];
-                    const z2Idx = (z1Idx + 1) % nZones;
-                    if (!map[z2Idx] || map[z2Idx].p2Pool.length === 0) {
-                        const backupZ2 = Array.from({length: nZones}, (_, i) => i).find(idx => map[idx] && map[idx].p2Pool.length > 0);
-                        a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
-                        a.z2 = backupZ2; a.p2 = map[backupZ2].p2Pool.pop();
-                    } else {
-                        a.z1 = z1Idx; a.p1 = map[z1Idx].p1Pool.pop();
-                        a.z2 = z2Idx; a.p2 = map[z2Idx].p2Pool.pop();
+                    let availZ2 = Array.from({length: nZones}, (_, i) => i).filter(idx => map2[idx] && map2[idx].p2Pool.length > 0);
+                    
+                    let z2Idx = z1Idx;
+                    if (availZ2.length > 1) {
+                        let diffAvail = availZ2.filter(idx => idx !== z1Idx);
+                        if (diffAvail.length > 0) z2Idx = diffAvail[Math.floor(Math.random() * diffAvail.length)];
+                        else z2Idx = availZ2[Math.floor(Math.random() * availZ2.length)];
+                    } else if (availZ2.length === 1) {
+                        z2Idx = availZ2[0];
                     }
+
+                    a.z1 = z1Idx; a.p1 = map1[z1Idx].p1Pool.pop();
+                    a.z2 = z2Idx; a.p2 = map2[z2Idx].p2Pool.pop();
                     lockedAssignments.set(a.name, {z1: a.z1, p1: a.p1, z2: a.z2, p2: a.p2});
                 }
             }
@@ -368,7 +389,7 @@
 
         currentDrawData = all; 
         isDrawSaved = false; 
-        renderResults(teams, indivs, map);
+        renderResults(teams, indivs, map1, map2);
         
         localStorage.removeItem(DRAFT_KEY);
 
@@ -403,9 +424,15 @@
 
     function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
-    function renderResults(teams, indivs, map) {
-        let keyHtml = `<div style="display:flex; gap:5px; margin-bottom:20px;">` + 
-            map.map(m => `<div class="pdf-zone-tag" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>`;
+    function renderResults(teams, indivs, map1, map2) {
+        let keyHtml = `<div style="background:var(--card); padding:10px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(0,0,0,0.2);">` + 
+            `<div style="font-size: 10px; font-weight: 900; margin-bottom: 5px; color:var(--accent);">DAY 1 PEGS:</div>` +
+            `<div style="display:flex; gap:5px; margin-bottom:10px;">` + 
+            map1.map(m => `<div class="pdf-zone-tag" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div>` +
+            `<div style="font-size: 10px; font-weight: 900; margin-bottom: 5px; color:var(--accent);">DAY 2 PEGS:</div>` +
+            `<div style="display:flex; gap:5px;">` + 
+            map2.map(m => `<div class="pdf-zone-tag" style="background-color: var(--row-${m.name.toLowerCase()});"><b>${m.name.toUpperCase()}</b><br>${m.start}-${m.end}</div>`).join('') + `</div></div>`;
+            
         const tbl = (data, title) => `<div class="res-block" style="border: 2px solid #000; margin-bottom:10px; padding:15px; -webkit-print-color-adjust: exact;"><h3>${title}</h3><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; border-bottom:3px solid #000;">Angler</th><th style="padding:10px; border-bottom:3px solid #000;">Day 1</th><th style="padding:10px; border-bottom:3px solid #000;">Day 2</th></tr></thead><tbody>` + 
             data.map(a => `<tr><td style="padding:10px; border-bottom:1px solid #000;"><strong>${a.name}</strong></td><td style="background-color: var(--row-${zones[a.z1].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z1]} (${a.p1})</td><td style="background-color: var(--row-${zones[a.z2].toLowerCase()}); padding:10px; border-bottom: 1px solid #000; color: #000; font-weight: bold; border-left: 10px solid rgba(0,0,0,0.1);">${zones[a.z2]} (${a.p2})</td></tr>`).join('') + `</tbody></table></div>`;
         let html = `<div style="text-align:center; padding-bottom:15px;"><h2 style="margin:0; text-transform:uppercase;">OFFICIAL DRAW SHEET</h2><span style="color:#0072ff; font-weight:800; font-size:1.2rem;">${document.getElementById('matchTitle').value || 'OFFICIAL'}</span></div>` + keyHtml;
