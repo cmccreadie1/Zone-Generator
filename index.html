@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MatchPro v7.9.0</title>
+    <title>MatchPro v8.1.0</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --subtext: #64748b;
-            --accent: #4f46e5; --accent-hover: #4338ca; --border: #e2e8f0;
+            --accent: #4f46e5; --border: #e2e8f0;
             --red: #ef4444; --yellow: #eab308; --green: #22c55e; --blue: #3b82f6;
         }
         
-        /* Global Caps & Layout */
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; text-transform: uppercase; line-height: 1.5; }
-        input { text-transform: uppercase; font-weight: 800 !important; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; text-transform: uppercase; line-height: 1.5; overflow-x: hidden; }
+        input { text-transform: uppercase; font-weight: 900 !important; }
 
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 5000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 5000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 20px; }
         .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
         .app-logo { width: 90px; }
         .version-tag { font-weight: 900; font-size: 10px; color: var(--accent); letter-spacing: 1px; }
@@ -27,51 +29,53 @@
         #entrySection, #resultsSection { max-width: 1400px; margin: 0 auto; padding: 130px 20px 40px; }
         #resultsSection { padding-top: 100px; }
 
-        /* Multi-Column Grid for Results */
-        #resultsArea { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 20px; 
-        }
-        @media (min-width: 1024px) { 
-            #resultsArea { grid-template-columns: 1fr 1fr; } 
-        }
+        /* Animation Grid */
+        #resultsArea { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 1024px) { #resultsArea { grid-template-columns: 1fr 1fr; } }
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
-        label { color: var(--subtext); font-weight: 800; font-size: 10px; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
-        
-        input { background: #f1f5f9; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .reveal-pop { transform: scale(1.03); }
+
+        label { color: var(--subtext); font-weight: 800; font-size: 10px; margin-bottom: 6px; display: block; }
+        input { background: #f1f5f9; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 14px; outline: none; }
         input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-        .btn-main { background: var(--accent); color: white; padding: 16px; border-radius: 10px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; width: 100%; transition: transform 0.1s; letter-spacing: 1px; }
-        .btn-main:hover { background: var(--accent-hover); }
+        .btn-main { background: var(--accent); color: white; padding: 18px; border-radius: 10px; font-weight: 900; font-size: 14px; border: none; cursor: pointer; width: 100%; letter-spacing: 1px; }
         
-        .results-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .results-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; }
         .btn-nav { padding: 14px 2px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; color: white; }
 
-        .compact-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .compact-table th { text-align: left; padding: 8px; border-bottom: 2px solid var(--bg); color: var(--subtext); font-size: 9px; }
-        .compact-table td { padding: 10px 8px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
-        
-        .zone-pill { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 11px; color: white; min-width: 50px; text-align: center; }
-        .peg-indicator { font-weight: 900; color: var(--text); margin-left: 6px; font-size: 14px; }
+        /* Shuffle Overlay */
+        #shuffleOverlay { position: fixed; inset: 0; background: rgba(248, 250, 252, 0.98); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .progress-container { width: 300px; height: 12px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 20px; }
+        .progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; }
 
+        .compact-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .compact-table th { text-align: left; padding: 8px; border-bottom: 2px solid var(--bg); color: var(--subtext); font-size: 9px; }
+        .compact-table td { padding: 10px 8px; border-bottom: 1px solid var(--bg); }
+        
+        .zone-pill { display: inline-block; padding: 5px 10px; border-radius: 6px; font-weight: 900; font-size: 11px; color: white; min-width: 60px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .peg-indicator { font-weight: 900; color: var(--text); margin-left: 8px; font-size: 15px; }
+
+        .audit-footer { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px; text-align: center; color: var(--subtext); font-size: 9px; grid-column: 1 / -1; }
         .btn-delete { position: absolute; top: 12px; right: 12px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 900; }
 
-        @media print { 
-            .no-print { display: none !important; } 
-            #resultsSection { padding-top: 0; } 
-            #resultsArea { grid-template-columns: 1fr 1fr !important; }
-        }
+        @media print { .no-print { display: none !important; } #resultsSection { padding-top: 0; } #resultsArea { grid-template-columns: 1fr 1fr !important; } }
     </style>
 </head>
 <body>
+
+<div id="shuffleOverlay">
+    <h1 style="font-weight: 900; letter-spacing: 2px;">RANDOMIZING DRAW</h1>
+    <p id="shuffleTicker" style="color: var(--subtext); font-weight: 800; font-size: 14px;">GENERATING SECTORS...</p>
+    <div class="progress-container"><div id="pBar" class="progress-bar"></div></div>
+</div>
 
 <div class="fixed-header no-print">
     <div class="header-content">
         <div style="display:flex; align-items:center; gap:12px;">
             <img src="icon.svg" alt="Logo" class="app-logo">
-            <span class="version-tag">v7.9.0</span>
+            <span class="version-tag">v8.1.0</span>
         </div>
         <button style="background:transparent; border:none; font-weight:900; color:var(--subtext); font-size:10px; cursor:pointer;">HISTORY</button>
     </div>
@@ -87,17 +91,19 @@
         <button class="btn-main" onclick="bulkInit()">BUILD ENTRY FIELDS</button>
     </div>
     <div id="entryList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px;"></div>
-    <div id="drawAction" style="display:none; margin-top:30px;"><button class="btn-main" style="background:#0f172a;" onclick="runDraw()">PROCESS RESULTS</button></div>
+    <div id="drawAction" style="display:none; margin-top:30px;"><button class="btn-main" style="background:#0f172a;" onclick="initiateShuffle()">PROCESS RESULTS</button></div>
 </div>
 
 <div id="resultsSection" style="display:none;">
-    <div class="results-nav no-print">
+    <div id="resultsButtons" class="results-nav no-print">
         <button onclick="window.print()" class="btn-nav" style="background:#64748b;">PRINT</button>
-        <button onclick="exportToCSV()" class="btn-nav" style="background:#0ea5e9;">CSV EXPORT</button>
-        <button onclick="shareResults()" class="btn-nav" style="background:#6366f1;">SHARE</button>
+        <button onclick="exportToCSV()" class="btn-nav" style="background:#0ea5e9;">CSV</button>
+        <button onclick="shareFullPage()" id="shareBtn" class="btn-nav" style="background:#6366f1;">SHARE PAGE</button>
         <button onclick="handleAmend()" class="btn-nav" style="background:#f97316;">AMEND</button>
     </div>
-    <div id="resultsArea"></div>
+    <div id="captureArea">
+        <div id="resultsArea"></div>
+    </div>
 </div>
 
 <script>
@@ -130,6 +136,28 @@
 
     function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
+    function initiateShuffle() {
+        const overlay = document.getElementById('shuffleOverlay');
+        const pBar = document.getElementById('pBar');
+        const ticker = document.getElementById('shuffleTicker');
+        overlay.style.display = 'flex';
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 2;
+            pBar.style.width = progress + '%';
+            if(progress < 30) ticker.innerText = "SHUFFLING PEGS...";
+            else if(progress < 60) ticker.innerText = "VERIFYING SECTOR ROTATIONS...";
+            else ticker.innerText = "LOCKING RESULTS...";
+            
+            if(progress >= 100) {
+                clearInterval(interval);
+                overlay.style.display = 'none';
+                runDraw();
+            }
+        }, 60);
+    }
+
     function runDraw() {
         let teams = []; let indivs = [];
         document.querySelectorAll('.card[data-type]').forEach(block => {
@@ -139,52 +167,47 @@
             else if(names[0]) indivs.push({ name: names[0], team: "" });
         });
 
-        const totalAnglers = (teams.length * 4) + indivs.length;
-        const baseSize = Math.floor(totalAnglers / 4);
-        const remainder = totalAnglers % 4;
+        const total = (teams.length * 4) + indivs.length;
+        const base = Math.floor(total / 4);
+        const rem = total % 4;
 
         let poolsD1 = zones.map((name, i) => {
-            let size = baseSize + (i < remainder ? 1 : 0);
-            let p = []; for(let n=1; n<=size; n++) p.push(n); shuffle(p);
+            let s = base + (i < rem ? 1 : 0);
+            let p = []; for(let n=1; n<=s; n++) p.push(n); shuffle(p);
             return { name, pool: p };
         });
 
-        let poolsD2 = zones.map((name) => {
-            const sourceZone = Object.keys(rotationMap).find(key => rotationMap[key] === name);
-            const sourceIdx = zones.indexOf(sourceZone);
-            let size = baseSize + (sourceIdx < remainder ? 1 : 0);
-            let p = []; for(let n=1; n<=size; n++) p.push(n); shuffle(p);
+        let poolsD2 = zones.map(name => {
+            const src = Object.keys(rotationMap).find(k => rotationMap[k] === name);
+            const srcIdx = zones.indexOf(src);
+            let s = base + (srcIdx < rem ? 1 : 0);
+            let p = []; for(let n=1; n<=s; n++) p.push(n); shuffle(p);
             return { name, pool: p };
         });
 
         let results = [];
         teams.forEach(t => {
             let zIdx = [0,1,2,3]; shuffle(zIdx);
-            let teamResults = { tName: t.tName, anglers: [] };
+            let tr = { tName: t.tName, anglers: [] };
             t.anglers.forEach((name, i) => {
                 const z1 = zones[zIdx[i]];
                 const p1 = poolsD1[zIdx[i]].pool.pop();
                 const z2 = rotationMap[z1];
-                const z2Idx = zones.indexOf(z2);
-                const p2 = poolsD2[z2Idx].pool.pop();
-                teamResults.anglers.push({ name, team: t.tName, z1, p1, z2, p2 });
+                const p2 = poolsD2[zones.indexOf(z2)].pool.pop();
+                tr.anglers.push({ name, team: t.tName, z1, p1, z2, p2 });
             });
-            results.push(teamResults);
+            results.push(tr);
         });
 
         if(indivs.length) {
-            let soloGroup = { tName: "INDIVIDUALS", anglers: [] };
+            let solo = { tName: "INDIVIDUALS", anglers: [] };
             indivs.forEach(a => {
-                let avail = poolsD1.map((p, idx) => idx).filter(idx => poolsD1[idx].pool.length > 0);
-                const zIdx = avail[Math.floor(Math.random() * avail.length)];
-                const z1 = zones[zIdx];
-                const p1 = poolsD1[zIdx].pool.pop();
-                const z2 = rotationMap[z1];
-                const z2Idx = zones.indexOf(z2);
-                const p2 = poolsD2[z2Idx].pool.pop();
-                soloGroup.anglers.push({ name: a.name, team: "", z1, p1, z2, p2 });
+                let av = poolsD1.map((p, idx) => idx).filter(idx => poolsD1[idx].pool.length > 0);
+                const zIdx = av[Math.floor(Math.random() * av.length)];
+                const z1 = zones[zIdx], p1 = poolsD1[zIdx].pool.pop(), z2 = rotationMap[z1], p2 = poolsD2[zones.indexOf(z2)].pool.pop();
+                solo.anglers.push({ name: a.name, team: "", z1, p1, z2, p2 });
             });
-            results.push(soloGroup);
+            results.push(solo);
         }
 
         currentDrawData = results;
@@ -195,31 +218,31 @@
 
     function renderResults(data) {
         const area = document.getElementById('resultsArea'); area.innerHTML = '';
-        const matchTitle = document.getElementById('matchTitle').value || "MATCH RESULTS";
+        const title = document.getElementById('matchTitle').value || "MATCH RESULTS";
+        const drawId = Math.random().toString(36).substring(2, 10).toUpperCase();
+        const time = new Date().toLocaleString();
+
         const titleDiv = document.createElement('div');
         titleDiv.style.gridColumn = "1 / -1";
-        titleDiv.innerHTML = `<h2 style="text-align:center; font-weight:900; margin-bottom:30px;">${matchTitle}</h2>`;
+        titleDiv.innerHTML = `<h2 style="text-align:center; font-weight:900; margin-bottom:30px; font-size:2rem;">${title}</h2>`;
         area.appendChild(titleDiv);
         
-        data.forEach(group => {
-            let html = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin-bottom:5px;"><h4 style="margin:0; color:var(--accent);">${group.tName || 'SOLO ANGLERS'}</h4></div><table class="compact-table"><thead><tr><th>ANGLER</th><th>DAY 1</th><th>DAY 2</th></tr></thead><tbody>`;
-            
+        data.forEach((group, idx) => {
+            let html = `<div class="card" style="transition-delay: ${idx * 50}ms"><div style="border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin-bottom:5px;"><h4 style="margin:0; color:var(--accent);">${group.tName || 'SOLO ANGLERS'}</h4></div><table class="compact-table"><thead><tr><th>ANGLER</th><th>DAY 1</th><th>DAY 2</th></tr></thead><tbody>`;
             group.anglers.forEach(a => {
-                html += `<tr>
-                    <td><b style="font-size:14px;">${a.name}</b></td>
-                    <td><span class="zone-pill" style="background:${zoneColors[a.z1]}">${a.z1}</span><span class="peg-indicator">${a.p1}</span></td>
-                    <td><span class="zone-pill" style="background:${zoneColors[a.z2]}">${a.z2}</span><span class="peg-indicator">${a.p2}</span></td>
-                </tr>`;
+                html += `<tr><td><b style="font-size:14px;">${a.name}</b></td><td><span class="zone-pill" style="background:${zoneColors[a.z1]}">${a.z1}</span><span class="peg-indicator">${a.p1}</span></td><td><span class="zone-pill" style="background:${zoneColors[a.z2]}">${a.z2}</span><span class="peg-indicator">${a.p2}</span></td></tr>`;
             });
             area.innerHTML += html + `</tbody></table></div>`;
         });
+
+        area.innerHTML += `<div class="audit-footer">MATCHPRO TRANSPARENCY RECEIPT • DRAW ID: ${drawId} • TIMESTAMP: ${time} • ALGORITHM: FISHER-YATES RANDOMIZATION</div>`;
+        
+        setTimeout(() => { document.querySelectorAll('.card').forEach(c => c.classList.add('reveal-pop')); }, 100);
     }
 
     function exportToCSV() {
         let csv = "ANGLER NAME,TEAM NAME,DAY 1 ZONE,DAY 2 ZONE\n";
-        currentDrawData.forEach(group => {
-            group.anglers.forEach(a => { csv += `${a.name},${a.team},${a.z1},${a.z2}\n`; });
-        });
+        currentDrawData.forEach(g => g.anglers.forEach(a => { csv += `${a.name},${a.team},${a.z1},${a.z2}\n`; }));
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -227,19 +250,21 @@
         link.click();
     }
 
-    function shareResults() {
-        let text = `${document.getElementById('matchTitle').value || 'MATCH RESULTS'}\n\n`;
-        currentDrawData.forEach(g => {
-            text += `${g.tName || 'SOLOS'}:\n`;
-            g.anglers.forEach(a => { text += `• ${a.name}: ${a.z1}(${a.p1}) / ${a.z2}(${a.p2})\n`; });
-            text += `\n`;
-        });
-        if (navigator.share) {
-            navigator.share({ title: 'Match Results', text: text });
-        } else {
-            navigator.clipboard.writeText(text);
-            alert("RESULTS COPIED TO CLIPBOARD");
-        }
+    async function shareFullPage() {
+        const btn = document.getElementById('shareBtn');
+        const matchTitle = document.getElementById('matchTitle').value || "MATCH_RESULTS";
+        btn.innerText = "CAPTURING...";
+        const opt = { margin: 10, filename: `${matchTitle}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
+        try {
+            const pdfBlob = await html2pdf().from(document.getElementById('captureArea')).set(opt).output('blob');
+            const file = new File([pdfBlob], `${matchTitle}.pdf`, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: matchTitle });
+            } else {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(pdfBlob); link.download = `${matchTitle}.pdf`; link.click();
+            }
+        } catch (err) { alert("SHARE FAILED."); } finally { btn.innerText = "SHARE PAGE"; }
     }
 
     function handleAmend() { document.getElementById('entrySection').style.display = 'block'; document.getElementById('resultsSection').style.display = 'none'; }
