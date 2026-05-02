@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MatchPro v7.8.0</title>
+    <title>MatchPro v7.9.0</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,35 +15,40 @@
             --red: #ef4444; --yellow: #eab308; --green: #22c55e; --blue: #3b82f6;
         }
         
+        /* Global Caps & Layout */
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; text-transform: uppercase; line-height: 1.5; }
         input { text-transform: uppercase; font-weight: 800 !important; }
 
-        /* Modern Navigation Bar */
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 5000; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; }
-        .app-logo { width: 90px; filter: grayscale(0.2); }
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 5000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .app-logo { width: 90px; }
         .version-tag { font-weight: 900; font-size: 10px; color: var(--accent); letter-spacing: 1px; }
 
-        /* Layout Containers */
-        #entrySection, #resultsSection { max-width: 1100px; margin: 0 auto; padding: 130px 20px 40px; }
+        #entrySection, #resultsSection { max-width: 1400px; margin: 0 auto; padding: 130px 20px 40px; }
         #resultsSection { padding-top: 100px; }
 
-        /* Modernized Cards */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
+        /* Multi-Column Grid for Results */
+        #resultsArea { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
+        @media (min-width: 1024px) { 
+            #resultsArea { grid-template-columns: 1fr 1fr; } 
+        }
+
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
         label { color: var(--subtext); font-weight: 800; font-size: 10px; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
         
         input { background: #f1f5f9; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; }
         input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-        /* Action Buttons */
         .btn-main { background: var(--accent); color: white; padding: 16px; border-radius: 10px; font-weight: 900; font-size: 13px; border: none; cursor: pointer; width: 100%; transition: transform 0.1s; letter-spacing: 1px; }
         .btn-main:hover { background: var(--accent-hover); }
-        .btn-main:active { transform: scale(0.98); }
         
-        .results-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
-        .btn-nav { padding: 14px 2px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .results-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn-nav { padding: 14px 2px; border-radius: 8px; font-size: 10px; font-weight: 900; border: none; cursor: pointer; color: white; }
 
-        /* Compact Result Table Styles */
         .compact-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         .compact-table th { text-align: left; padding: 8px; border-bottom: 2px solid var(--bg); color: var(--subtext); font-size: 9px; }
         .compact-table td { padding: 10px 8px; border-bottom: 1px solid var(--bg); vertical-align: middle; }
@@ -53,7 +58,11 @@
 
         .btn-delete { position: absolute; top: 12px; right: 12px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: 900; }
 
-        @media print { .no-print { display: none !important; } #resultsSection { padding-top: 0; } .card { box-shadow: none; border: 1px solid #eee; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            #resultsSection { padding-top: 0; } 
+            #resultsArea { grid-template-columns: 1fr 1fr !important; }
+        }
     </style>
 </head>
 <body>
@@ -62,9 +71,9 @@
     <div class="header-content">
         <div style="display:flex; align-items:center; gap:12px;">
             <img src="icon.svg" alt="Logo" class="app-logo">
-            <span class="version-tag">v7.8.0</span>
+            <span class="version-tag">v7.9.0</span>
         </div>
-        <button style="background:transparent; border:none; font-weight:900; color:var(--subtext); font-size:10px; cursor:pointer; letter-spacing:1px;">HISTORY</button>
+        <button style="background:transparent; border:none; font-weight:900; color:var(--subtext); font-size:10px; cursor:pointer;">HISTORY</button>
     </div>
 </div>
 
@@ -187,10 +196,13 @@
     function renderResults(data) {
         const area = document.getElementById('resultsArea'); area.innerHTML = '';
         const matchTitle = document.getElementById('matchTitle').value || "MATCH RESULTS";
-        area.innerHTML = `<h2 style="text-align:center; font-weight:900; margin-bottom:30px;">${matchTitle}</h2>`;
+        const titleDiv = document.createElement('div');
+        titleDiv.style.gridColumn = "1 / -1";
+        titleDiv.innerHTML = `<h2 style="text-align:center; font-weight:900; margin-bottom:30px;">${matchTitle}</h2>`;
+        area.appendChild(titleDiv);
         
         data.forEach(group => {
-            let html = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin-bottom:5px;"><h4 style="margin:0; color:var(--accent);">${group.tName || 'SOLO ANGLERS'}</h4></div><table class="compact-table"><thead><tr><th>ANGLER</th><th style="width:100px;">DAY 1</th><th style="width:100px;">DAY 2</th></tr></thead><tbody>`;
+            let html = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px; margin-bottom:5px;"><h4 style="margin:0; color:var(--accent);">${group.tName || 'SOLO ANGLERS'}</h4></div><table class="compact-table"><thead><tr><th>ANGLER</th><th>DAY 1</th><th>DAY 2</th></tr></thead><tbody>`;
             
             group.anglers.forEach(a => {
                 html += `<tr>
@@ -222,7 +234,6 @@
             g.anglers.forEach(a => { text += `• ${a.name}: ${a.z1}(${a.p1}) / ${a.z2}(${a.p2})\n`; });
             text += `\n`;
         });
-        
         if (navigator.share) {
             navigator.share({ title: 'Match Results', text: text });
         } else {
