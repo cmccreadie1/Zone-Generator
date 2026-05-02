@@ -1,9 +1,8 @@
-const CACHE_NAME = 'matchpro-v8.1.0-transparency-v1';
+const CACHE_NAME = 'zonedraw-v8.3.0-final-branding';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    './icon.svg',
     'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
 ];
 
