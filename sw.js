@@ -1,9 +1,10 @@
-const CACHE_NAME = 'zonedraw-v8.4.0-efficiency-v1';
+const CACHE_NAME = 'zonedraw-v8.5.0-vault-v1';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 ];
 
 self.addEventListener('install', (event) => {
