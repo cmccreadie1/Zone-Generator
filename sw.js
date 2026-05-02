@@ -1,4 +1,4 @@
-const CACHE_NAME = 'matchpro-v7.5.3-universal-patch';
+const CACHE_NAME = 'matchpro-v7.6.1-header-patch';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
