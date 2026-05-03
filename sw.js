@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zonedraw-v8.5.0-vault-v1';
+const CACHE_NAME = 'zonedraw-v8.6.0-hd-v1';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
